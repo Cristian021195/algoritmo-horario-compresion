@@ -1,0 +1,79 @@
+{//Modelo parcial, tomando como ejemplo el archivo exprebus-38-sabados-ns.xlsx
+    //de aqui sacamos: el n_columnas, y validamos que header[header.length -1] = "expreso"
+    "head":["tucuman","famailla","monteros","concepcion","aguilares","santa ana","alberdi","la cocha","los pizarros","rio huacra","veloz"],
+    "n_f":11,
+    "life":"11-12-2022",
+    "veloz":[3,5,9], // tuplas de expreso
+    "cv":[5,8],//columnas vacias
+    "v_freq":[//posiblemente donde haya celda *, no evaluar, o cargar como frecuencia 0,*, en el indice correspondiente.
+            {   
+                "f": 30, "i": [1,2,3,8,9,10]
+            },
+            {   
+                "f": 40, "i": [4,5]
+            },
+            {
+                "f": 5, "i": [6,7]
+            },
+            {   
+                "f": 40, "i": [4,5]
+            },
+            {
+                "f": 5, "i": [6,7]
+            },
+            {   
+                "f": 40, "i": [4,5]
+            },
+            {
+                "f": 5, "i": [6,7]
+            },
+            {   
+                "f": 40, "i": [4,5]
+            },
+            {
+                "f": 5, "i": [6,7]
+            },
+            {   
+                "f": 40, "i": [4,5]
+            },
+            {
+                "f": 5, "i": [6,7]
+            }
+    ],
+    "h_freq":[//posiblemente donde haya celda *, no evaluar, o cargar como frecuencia 0,*, en el indice correspondiente.
+            {   
+                "f": 30, "i": [1,2,3,8,9,10]
+            },
+            {   
+                "f": 40, "i": [4,5]
+            },
+            {
+                "f": 5, "i": [6,7]
+            },
+            {   
+                "f": 40, "i": [4,5]
+            },
+            {
+                "f": 5, "i": [6,7]
+            },
+            {   
+                "f": 40, "i": [4,5]
+            },
+            {
+                "f": 5, "i": [6,7]
+            },
+            {   
+                "f": 40, "i": [4,5]
+            },
+            {
+                "f": 5, "i": [6,7]
+            },
+            {   
+                "f": 40, "i": [4,5]
+            },
+            {
+                "f": 5, "i": [6,7]
+            }
+    ],
+
+}
