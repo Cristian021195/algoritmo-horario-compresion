@@ -15,6 +15,8 @@ const evaluador_vacio = "*"; //a futuro, hacerlo expresion regular
 console.log(filas);
 columnasVacias();
 console.log(columnas_vacias);
+console.log("A");
+frecuenciasVerticales(true, 0);
 
 //console.log(filas[0][2].trim());
 //console.log(!evaluador.test(filas[0][2].trim())); // invertirmos
@@ -37,6 +39,41 @@ function columnasVacias(){
             }
         }
     }
+}
+
+function frecuenciasVerticales(safeRow=true, columnPosition=0){
+    const freq_arr = []; let primer_valor = filas[0][0];
+    let primer_tiempo = ""; let sr = safeRow ? 1 : 0;
+    let freq_arr_size = 0;
+
+    for(let c = 0; c<columnPosition+1; c++){
+        for(let f = sr; f<n_filas; f++){
+            //console.log(new Date(1970,0,1,9,30))
+            let timeval = filas[f][columnPosition].split(':');// cortamos los valores de json hhmmss
+            let hh = timeval[0]; let mm = timeval[1];
+            let dTime = new Date(1970,0,1,hh,mm); // creamos el tipo de dato fecha
+            freq_arr.push(dTime.getTime()); // guardamos un arreglo de tiempos en milisegundos para comparar
+        }
+    }
+    
+    freq_arr_size = freq_arr.length;
+    console.log(freq_arr_size);
+    const fqwe = [];
+    if(primer_tiempo.trim().charAt(0) !== "*" && primer_valor.trim().charAt(0) === "*"){
+
+        for(let i = 0; i < freq_arr_size; i++){
+            let diff = 0; let prev_diff = 0;
+            if(i+1 !== freq_arr_size){
+                diff = freq_arr[i + 1] - freq_arr[i];                
+            }else{
+                diff = freq_arr[i];
+            }
+            fqwe.push(diff);
+        }
+
+        console.log(fqwe);
+    }
+
 }
 
 
