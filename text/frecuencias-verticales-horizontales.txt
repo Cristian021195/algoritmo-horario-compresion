@@ -1,0 +1,31 @@
+1) Arreglo de Frecuencias Verticales
+	- evalua el sentido para saber si comienza por la primer columna o la ultima
+	- evalua que la columna pivote este completa, de no estarlo busca en otras columnas para ver si hay un candidato pivote,
+	si no hay candidato pivote, el algoritmo hace lo mismo pero con la tupla de abajo, y guardando en un arreglo la primer tupla o la 	de mas arriba.
+
+2) Arreglo de Frecuencias Horizontales
+	Las frecuencias horizontales estan mas dispersas, y tenemos que serpararlas en expreso y comun, por lo tanto:
+	En caso de comun:
+		- Evaluamos si la primer columna tiene campo expreso o comun
+		- De ser asi, guardamos, el numero de tupla, y las celdas que estan ocupadas.
+		- El algorimo seguira iterando y cargando tuplas, en caso de encontrar celdas faltantes con numero de tupla y columna.
+		- Una vez que este completo dicho arreglo, volver a recorrerlo tomando diferentes celdas pivotes para cada posicion
+		de tupla y asi calcular la frecuencia correcta y no una desfazada
+		- Llenar las frecuencias correspondientes en un arreglo
+	En caso de expreso:
+		- mismo procedimiento, casi siempre o siempre tiene celda pivote
+
+
+Freq Horizontal Tucuman - Monteros
+	Común: 05:40 - 06:25 = 45 min
+	Expreso: 05:40 - 06:20 = 40 min
+
+	Común: 05:40 - 06:25 = 45 min
+	Expreso: 05:40 - 06:20 = 40 min
+
+Freq Horizontal Tucuman - Concepcion
+	Común: 05:40 - 07:00 = 1hr 20min
+	Expreso: 06:15 - 07:25 = 1hr 10min
+
+	Común: 11:55 - 13:15 = 1hr 20min
+	Expreso: 12:05 - 13:15 = 1hr 10min
