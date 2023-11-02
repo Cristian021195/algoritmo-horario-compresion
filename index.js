@@ -15,6 +15,7 @@ const vigencia = data.data_validity;
 const n_columnas = columnas.length;
 const n_filas = filas.length;
 const columnas_vacias = [];
+const rango_columnas_vacias = [];
 let filas_regulares;
 let filas_expreso;
 
@@ -29,7 +30,8 @@ console.log("Data body:",[...filas]);
 columnasVacias([...filas]);
 console.log("Columnas Vacias:",columnas_vacias);
 frecuenciaVertical(HORARIO_OBJ, [...filas]);
-
+rangoColumnasVacias([...filas]);
+//console.log(notacionRangoArray([0,1,2,3,4,5,7,8,10]));
 
 function columnasVacias(_filas){
     for(let c = 0; c<n_columnas; c++){
@@ -48,6 +50,94 @@ function columnasVacias(_filas){
             }
         }
     }
+}
+
+function rangoColumnasVacias(_filas){
+    /*
+    for(let c = 0; c<n_columnas; c++){
+        const a = {c,r:[]};
+        let range=[]
+        let jumper = false; let ev = 0;
+        for(let f = 0; f<n_filas; f++){
+            const ev = _filas[f][c].trim().charAt(0);
+            if(ev === "*"){
+                a.r.push(f);
+                jumper = true;
+            }else{
+                jumper = false;
+            }
+        }
+        rango_columnas_vacias.push(a);
+    }
+    console.log(JSON.stringify(rango_columnas_vacias))
+    */
+
+    
+
+    for(let c = 0; c<n_columnas; c++){
+        const a = {c,r:[]}; let range=[];
+        for(let f = 0; f<n_filas; f++){
+            const ev = _filas[f][c].trim().charAt(0);
+            if(ev === "*"){
+                a.r.push(f);
+            }
+        }
+        rango_columnas_vacias.push(a);
+    }
+
+    console.log(JSON.stringify(rango_columnas_vacias))
+    
+    rango_columnas_vacias.forEach(e=> {
+        e.r = notacionRangoArray(e.r);
+        //console.log(e.r);
+    });
+
+    console.log(JSON.stringify(rango_columnas_vacias))
+}
+
+function notacionRangoArray(evalarr){//[0,1,2,3,4,5,7,8,10]
+    // Este algoritmo de compresion de instruccion, reduce entre un 17% a 20% el tamaño de arreglo de filas vacias
+    if (Array.isArray(evalarr) && evalarr?.length) {// no vacio
+        const res = [];
+        let jumper = false;
+        let rng = [evalarr[0]];
+        for(let i=1; i < evalarr.length; i++){
+            if(evalarr[i]-evalarr[i-1] === 1){
+                jumper = true;
+            }else{
+                rng.push(evalarr[i-1]);
+                res.push(rng);
+                rng = [evalarr[i]]
+                jumper = false;
+            }
+        }
+        if(rng[0] === evalarr[evalarr.length-1]){
+
+        }else{
+            rng.push(evalarr[evalarr.length-1]);
+        }
+        //rng.push(evalarr[evalarr.length-1]); // descomentar y quitar if else de arriba para volver como antes
+        res.push(rng);
+        rng = [];
+        return res;    
+    }else{
+        return [];
+    }    
+}
+
+function reconstruccionVacio(){
+    const col = [];
+    for(let c = 0; c<n_columnas; c++){
+        const row = [];
+        for(let f = 0; f<n_filas; f++){
+            row.push("a");
+        }
+        col.push(row);
+    }
+
+    rango_columnas_vacias.forEach(e=>{
+        
+    })
 }
 
 function validarNombreArchivo(nombre=""){
