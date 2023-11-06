@@ -16,6 +16,7 @@ const n_columnas = columnas.length;
 const n_filas = filas.length;
 const columnas_vacias = [];
 const rango_columnas_vacias = [];
+const rango_filas_vacias = [];
 let filas_regulares;
 let filas_expreso;
 
@@ -25,13 +26,100 @@ const words = /^[a-z]+/g;
 const number = /[0-9]/g;
 const evaluador_vacio = "*"; //a futuro, hacerlo expresion regular
 
-console.log(validarNombreArchivo(horario_str));
+
+//Funciones del sistema
+//console.log(validarNombreArchivo(horario_str));
 console.log("Data body:",[...filas]);
 columnasVacias([...filas]);
-console.log("Columnas Vacias:",columnas_vacias);
-frecuenciaVertical(HORARIO_OBJ, [...filas]);
+//console.log("Columnas Vacias:",columnas_vacias);
+//frecuenciaVertical(HORARIO_OBJ, [...filas]);
 rangoColumnasVacias([...filas]);
+rangoFilasVacias([...filas]);
+//ponerFilasVacias([...filas]);
+ponerColumnasVacias([...filas]);
+
+
+
+//Funciones para probar en caso de fallas
 //console.log(notacionRangoArray([0,1,2,3,4,5,7,8,10]));
+
+function ponerColumnasVacias(r_c_v){// demo, se aplica al final
+    const arr_template = [
+        ["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","si"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],
+        ["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","si"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],
+        ["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","si"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],
+        ["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","si"],
+    ];
+    /* //quizas podemos comprimir mas, suprimiendo c:0, c:n, solo dejando por tupla, r:[]
+        [
+            {"c":0,"r":[[0,1]]},
+            {"c":1,"r":[[0,1]]},
+            {"c":2,"r":[[0,1]]},
+            {"c":3,"r":[[0]]},
+            {"c":4,"r":[[0]]},
+            {"c":5,"r":[[0,10]]},
+            {"c":6,"r":[[0,5],[7,8],[10]]},
+            {"c":7,"r":[[0,5],[7,10]]},
+            {"c":8,"r":[[0,10]]},
+            {"c":9,"r":[[0,10]]},
+            {"c":10,"r":[]}
+        ]
+    */
+    for(let c = 0; c < n_columnas; c++){//tener en cuenta que puede ser n_columnas - 1 si queremos salvar la columna final de expreso, aun asi funciona ahora
+        const f_range = rango_columnas_vacias[c].r.length;
+        
+        for(let f = 0; f<f_range; f++){// evaluar
+            let min = 0;
+            if(rango_columnas_vacias[c].r[f][0] !== undefined || rango_columnas_vacias[c].r[f][0] !== null){
+                min = rango_columnas_vacias[c].r[f][0];
+            }
+            let max = rango_columnas_vacias[c].r[f][1];
+            if(max === undefined){
+                max = min;
+            }
+            for (let z = min; z <= max; z++) {
+                arr_template[z][c] = "*";
+            }
+        }
+    }
+    console.log(arr_template);
+}
+
+
+function ponerFilasVacias(r_c_v){// demo, se aplica al final
+    const arr_template = [
+        ["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","si"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],
+        ["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","si"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],
+        ["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","si"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],
+        ["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","si"],
+    ];
+    /*
+        [
+            {"r":0,"c":[[0,9]]},
+            {"r":1,"c":[[0,2],[5,9]]},
+            {"r":2,"c":[[5,9]]},
+            {"r":3,"c":[[5,9]]},
+            {"r":4,"c":[[5,9]]},
+            {"r":5,"c":[[5,9]]},
+            {"r":6,"c":[[5,5],[8,9]]},
+            {"r":7,"c":[[5,9]]},
+            {"r":8,"c":[[5,9]]},
+            {"r":9,"c":[[5,5],[7,9]]},
+            {"r":10,"c":[[5,9]]}
+        ]
+    */
+    for(let f = 0; f < n_filas; f++){
+        const c_range = rango_filas_vacias[f].c.length;
+        for(let c = 0; c<c_range; c++){
+            const min = rango_filas_vacias[f].c[c][0];
+            const max = rango_filas_vacias[f].c[c][1];
+            for (let z = min; z <= max; z++) {
+                arr_template[f][z] = "*";
+            }
+        }
+    }    
+    console.log(arr_template);
+}
 
 function columnasVacias(_filas){
     for(let c = 0; c<n_columnas; c++){
@@ -52,30 +140,27 @@ function columnasVacias(_filas){
     }
 }
 
+function rangoFilasVacias(_filas){    
+    for(let f = 0; f<n_filas; f++){
+        const a = {r:f,c:[]};
+        for(let c = 0; c<n_columnas; c++){ //  ['*', '*', '*', '06:50:00', '07:15:00', '*', '*', '*', '*', '*', 'no']
+            const ev = _filas[f][c].trim().charAt(0);
+            if(ev === "*"){
+                a.c.push(c);
+            }
+        }
+        rango_filas_vacias.push(a);
+    }
+    rango_filas_vacias.forEach(e=> {
+        e.c = notacionRangoArray(e.c);
+        //console.log(e.r);
+    });
+    console.log("Rango filas vacias: ", JSON.stringify(rango_filas_vacias))
+}
+
 function rangoColumnasVacias(_filas){
-    /*
     for(let c = 0; c<n_columnas; c++){
-        const a = {c,r:[]};
-        let range=[]
-        let jumper = false; let ev = 0;
-        for(let f = 0; f<n_filas; f++){
-            const ev = _filas[f][c].trim().charAt(0);
-            if(ev === "*"){
-                a.r.push(f);
-                jumper = true;
-            }else{
-                jumper = false;
-            }
-        }
-        rango_columnas_vacias.push(a);
-    }
-    console.log(JSON.stringify(rango_columnas_vacias))
-    */
-
-    
-
-    for(let c = 0; c<n_columnas; c++){
-        const a = {c,r:[]}; let range=[];
+        const a = {c:c,r:[]};
         for(let f = 0; f<n_filas; f++){
             const ev = _filas[f][c].trim().charAt(0);
             if(ev === "*"){
@@ -84,15 +169,12 @@ function rangoColumnasVacias(_filas){
         }
         rango_columnas_vacias.push(a);
     }
-
-    console.log(JSON.stringify(rango_columnas_vacias))
     
     rango_columnas_vacias.forEach(e=> {
         e.r = notacionRangoArray(e.r);
         //console.log(e.r);
     });
-
-    console.log(JSON.stringify(rango_columnas_vacias))
+    console.log("Rango columnas vacias: ", JSON.stringify(rango_columnas_vacias))
 }
 
 function notacionRangoArray(evalarr){//[0,1,2,3,4,5,7,8,10]
