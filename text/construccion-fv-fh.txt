@@ -1,0 +1,13 @@
+Para reconstruir el horario en base a los datos que ya tenemos, debemos de dividir dicha reconstruccion en dos grandes partes.
+    1 - la reconstruccion en base a frecuencias de tipo comun
+    1 - la reconstruccion en base a frecuencias de tipo expreso
+Ya que, por ejemplo, podemos tener el mismo horario de salida, pero si aplicamos el mismo arreglo e frecuencias
+(el comun, porque es mas abundante), a todas las tuplas, tendremos un horario incorrecto de llegada de las lineas expreso
+
+Por lo tanto el algoritmo deberia de:
+    ya lo hace xd, aun asi lo que debemos tener en cuenta es el caso de LOS EXPRESOS
+    ¿xq? porque son casos muy poco presentes y particulares, podemos:
+        a - guardar cada tupla expreso en un arreglo y luego reconstruirlo al final (simple, pero tomaria mucho espacio)
+        b - tomar el arreglo de frecuencias horizontales (solo expreso), haber guardado el indice de fila/tupla expreso
+            su valor de pivote, izq o der principal y luego extenderlo como hicimos en el caso anterior pero dado vuelta
+        c - si funciona, al final colocar las tuplas vacias.

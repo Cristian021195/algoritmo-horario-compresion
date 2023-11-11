@@ -10,6 +10,7 @@ const HORARIO_OBJ = {
 const columnas = data.data_header;
 const filas = data.data_body;
 const filas_bk = [...filas];
+const filas_copy = [...filas];
 const vigencia = data.data_validity;
 //[fy][cx]
 const n_columnas = columnas.length;
@@ -17,6 +18,8 @@ const n_filas = filas.length;
 const columnas_vacias = [];
 const rango_columnas_vacias = [];
 const rango_filas_vacias = [];
+
+let frecuencias_verticales = [];
 let filas_regulares;
 let filas_expreso;
 
@@ -30,18 +33,82 @@ const evaluador_vacio = "*"; //a futuro, hacerlo expresion regular
 //Funciones del sistema
 //console.log(validarNombreArchivo(horario_str));
 console.log("Data body:",[...filas]);
-columnasVacias([...filas]);
-//console.log("Columnas Vacias:",columnas_vacias);
-//frecuenciaVertical(HORARIO_OBJ, [...filas]);
+frecuenciaVertical(HORARIO_OBJ, [...filas]);
 rangoColumnasVacias([...filas]);
-rangoFilasVacias([...filas]);
-//ponerFilasVacias([...filas]);
-ponerColumnasVacias([...filas]);
-
+//ponerColumnasVacias([...filas])); //se ejecuta al final
+llenadoDeHorariosComun([...filas]);
 
 
 //Funciones para probar en caso de fallas
 //console.log(notacionRangoArray([0,1,2,3,4,5,7,8,10]));
+
+function llenadoDeHorariosComun(_filas){
+    const nfila = n_filas; const ncol = n_filas - 1;
+    const arr_pos_a_llenar_col = []; const arr_pos_a_llenar_row = [];
+    const arr_pos_a_llenar = [];
+    for (let f = 0; f < ncol; f++) {
+        
+        for (let c = 0; c < ncol; c++) {
+            const evex = _filas[f][ncol];
+            if(evex == 'si'){ // en futuro 1 o 0
+
+            }else{
+                const ev = _filas[f][c].trim().charAt(0);
+                if(ev !== "*"){
+                    if(!arr_pos_a_llenar_col.includes(c)){
+                        arr_pos_a_llenar_col.push(c);
+                        arr_pos_a_llenar_row.push(f);
+                    }
+                }else{
+                    //console.log('a')
+                }
+            }
+        }
+        
+    }
+
+    for (let i = 0; i < arr_pos_a_llenar_col.length; i++) {
+        arr_pos_a_llenar.push({f:arr_pos_a_llenar_row[i],c:arr_pos_a_llenar_col[i]});
+    }
+
+    console.log(JSON.stringify(arr_pos_a_llenar));
+    crearColumnaHorario(1,5);
+    
+}
+
+function crearColumnaHorario(f,c){ // si bien recive/usa el arreglo de frecuencias para armar se aplicó solo a horarios comun
+    let hora_str = filas_copy[2][0];
+    if(hora_str == "*"){
+        throw new Error("El valor evaluado no es del formato correcto hh:mm:ss o hh:mm");
+    }
+    let timeval  = hora_str.split(':');
+    let hh = timeval[0]; let mm = timeval[1];
+    const dTime = new Date(1970,0,1,hh,mm).getTime() / 1000;
+    let accTime = dTime;
+
+    console.log(hora_str, dTime);
+    let arraxf = [dTime*1000];
+
+    for (let fr = f; fr < frecuencias_verticales.freq_step.length; fr++) { // es el numero de frecuencias ver si lo guardamos aparte
+        let addTime = frecuencias_verticales.freq_step[fr];
+        accTime+=addTime;
+        arraxf.push(accTime*1000);
+    }
+
+    arraxf.forEach(e=>{
+        console.log(new Date(e))
+    })
+    /*for (let fr = f; fr < n_filas; fr++) { // aplicamos fila 2 en este caso
+        if(fr+1 == n_filas) break;
+        //let addTime = Math.abs(frecuencias_verticales.freq_diff[fr] - frecuencias_verticales.freq_diff[fr+1]);
+        let addTime = frecuencias_verticales.freq_step[fr];
+        accTime+=addTime;
+        arraxf.push(accTime);
+    }
+    console.log(arraxf)*/
+}
+
+
 
 function ponerColumnasVacias(r_c_v){// demo, se aplica al final
     const arr_template = [
@@ -82,11 +149,11 @@ function ponerColumnasVacias(r_c_v){// demo, se aplica al final
             }
         }
     }
-    console.log(arr_template);
+    return arr_template;
 }
 
 
-function ponerFilasVacias(r_c_v){// demo, se aplica al final
+function ponerFilasVacias(r_c_v){//sirve si la cantidad de columnas supera a filas, se aplica al final
     const arr_template = [
         ["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","si"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],
         ["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","si"],["08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","08:25:00","no"],
@@ -121,7 +188,7 @@ function ponerFilasVacias(r_c_v){// demo, se aplica al final
     console.log(arr_template);
 }
 
-function columnasVacias(_filas){
+function columnasVacias(_filas){ //gracias a que tenemos la fn ponerColumnasVacias no seria necesario, igual se deja porlas
     for(let c = 0; c<n_columnas; c++){
         for(let f = 0; f<n_filas; f++){
             const numeral = _filas[0][c].trim().charAt(0);
@@ -140,7 +207,7 @@ function columnasVacias(_filas){
     }
 }
 
-function rangoFilasVacias(_filas){    
+function rangoFilasVacias(_filas){// solo necesario cuando n_columas > n_filas
     for(let f = 0; f<n_filas; f++){
         const a = {r:f,c:[]};
         for(let c = 0; c<n_columnas; c++){ //  ['*', '*', '*', '06:50:00', '07:15:00', '*', '*', '*', '*', '*', 'no']
@@ -174,7 +241,6 @@ function rangoColumnasVacias(_filas){
         e.r = notacionRangoArray(e.r);
         //console.log(e.r);
     });
-    console.log("Rango columnas vacias: ", JSON.stringify(rango_columnas_vacias))
 }
 
 function notacionRangoArray(evalarr){//[0,1,2,3,4,5,7,8,10]
@@ -257,7 +323,7 @@ function validarNombreArchivo(nombre=""){
 
 function frecuenciaVertical(OH){
     let indice_pivote = 0;
-    let columna_pivote; let col_aux_a; let col_aux_b; 
+    let columna_pivote; //let col_aux_a; let col_aux_b; 
     let saferow = 0;
     //Recuperamos el sentido del horario
     if(OH?.sentido === 'ab'){
@@ -274,9 +340,9 @@ function frecuenciaVertical(OH){
     console.log(col_aux_b);
     */
 
-    columna_pivote = buscarPivoteAuto(n_filas, saferow);    
-    //console.log(columna_pivote);
-    console.log(frecuenciasVerticalesAlt(columna_pivote));
+    columna_pivote = buscarPivoteAuto(n_filas, saferow);
+    frecuencias_verticales = frecuenciasVerticalesAlt(columna_pivote);
+    console.log(frecuencias_verticales);
     arregloExpresos();// console.log({filas_expreso, filas_regulares});
     console.log(frecienciasHorizontales());
     
@@ -407,7 +473,6 @@ function frecienciasHorizontales(){
     let res_arr_r = [0,...arr_aux_r];
     let res_arr_e = [0,...arr_aux_e];
 
-    console.log("A");
     //console.log(res_arr_r.map(re=>re<0 ? 0 : re));
     //console.log(res_arr_e.map(rr=>rr<0 ? 0 : rr));
     let freq_reg_h = res_arr_r.map(re=>re<0 ? 0 : re);
@@ -462,20 +527,23 @@ function frecuenciasVerticales(pivote){
 
 }
 function frecuenciasVerticalesAlt(pivote){// tomando referencia 0 a ultimo arreglo con sumatoria de minutos
+    //evaluar
     const freq_arr = [];
     const freq_diff = [];
+    const freq_step = [];
 
+    //freq_arr
     for(let f = 0; f<pivote.length; f++){
         //console.log(new Date(1970,0,1,9,30))
         let timeval = pivote[f].split(':');// cortamos los valores de json hhmmss
         let hh = timeval[0]; let mm = timeval[1];
         let dTime = new Date(1970,0,1,hh,mm); // creamos el tipo de dato fecha
-        freq_arr.push(dTime.getTime()); // guardamos un arreglo de tiempos en milisegundos para comparar
+        freq_arr.push(dTime.getTime()/1000); // guardamos un arreglo de tiempos en milisegundos para comparar
     }
 
-    
+    //freq_diff
     for(let i = 0; i < pivote.length; i++){
-        let diff = 0; let prev_diff = 0;
+        let diff = 0;
         if(i+1 !== pivote.length){
             diff = freq_arr[i + 1] - freq_arr[i];
             
@@ -484,12 +552,22 @@ function frecuenciasVerticalesAlt(pivote){// tomando referencia 0 a ultimo arreg
         }
         freq_diff.push(diff);
     }
+
     let sum;
     let arr_aux = freq_diff.map(elem => sum = (sum || 0) + elem);
     arr_aux.pop()
     let res_arr = [0,...arr_aux];
 
-    return {freq_arr, freq_diff:res_arr};
+    //freq_step
+    for(let i = 0; i < pivote.length; i++){
+        let diff = 0;
+        if(i+1 !== pivote.length){
+            diff = freq_arr[i + 1] - freq_arr[i];
+            freq_step.push(diff);            
+        }
+    }
+
+    return {freq_arr, freq_diff:res_arr, freq_step};
 
 }
 
