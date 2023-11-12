@@ -96,7 +96,7 @@ function crearColumnaHorario(f,c){ // si bien recive/usa el arreglo de frecuenci
     }
 
     arraxf.forEach(e=>{
-        console.log(new Date(e))
+        //console.log(new Date(e))
     })
     /*for (let fr = f; fr < n_filas; fr++) { // aplicamos fila 2 en este caso
         if(fr+1 == n_filas) break;
@@ -403,7 +403,86 @@ function traerColumna(indice, safeRow=0){//safeRow tiene que ser 1 si queremos r
     return columna;
 }
 
-function frecienciasHorizontales(){
+function armarPivoteHorizontalExpreso(){
+    const _filas = [...filas];
+
+    let filtrado = _filas.filter(e=>e[n_columnas-1]=="si")
+    let filtrado_h = [];
+    let max = 0; let pos = 0;
+    for (let f = 0; f < filtrado.length; f++) {
+        
+        let fila = filtrado[f].filter(e=>{if(e!=="si")return e});
+
+        if(max <= fila.length){
+            max = fila.length; pos = f;
+            filtrado_h.push(fila);
+        }
+    }
+    let pivote =  filtrado_h[pos]
+    
+    pivote = pivote.map(e=>{if(e==="*"){return 0}else{return e}})
+    return pivote;
+}
+
+function frecienciasHorizontales(){ // expreso, luego renombrar
+    const _filas = [...filas];
+
+    let evalua = _filas[3];
+    
+    let pivote = armarPivoteHorizontalExpreso();
+    let freqarr = pivote.map((e)=>{
+        if(e===0) return 0
+        let timestr = e.split(":");
+        let hh = timestr[0]; let mm = timestr[1];
+        let dTime = new Date(1970,0,1,hh,mm);
+        return dTime.getTime();
+    })
+    let zero_pos = freqarr.map((e,ei)=>{if(e===0) return ei}).filter(e=>e!==undefined)
+    let time_pos_aux = freqarr.map((e,ei)=>{if(e!==0) return ei}).filter(e=>e!==undefined)
+    let time_pos = time_pos_aux.slice(1);
+    let timearr = freqarr.map((e,ei)=>{if(e!==0) return e}).filter(e=>e!==undefined)
+    let freqcalc = [];
+    for (let td = 0; td < timearr.length; td++) {
+        if(td+1 == timearr.length) break;
+        let calc = Math.abs(timearr[td] - timearr[td+1])/1000;
+        freqcalc.push({calc, c:time_pos[td]});
+    }
+
+
+    console.log({freqarr, zero_pos, time_pos, timearr, freqcalc});
+
+
+    let valpivstr = _filas[3][0].split(":");
+    let hh = valpivstr[0]; let mm = valpivstr[1];
+    let dpivTime = new Date(1970,0,1,hh,mm);
+    let valpiv = dpivTime.getTime(); //igual hacer validacion
+    let arr = Array.from({length: 11});
+    arr[0] = valpiv; arr[arr.length-1] = 'si'; // futuro 1 o 0
+    
+    freqcalc.forEach((fc)=>{
+        valpiv += (fc.calc*1000);
+        arr[fc.c] = valpiv;
+    })
+
+    let resultado = arr.map((e)=>{
+        if(e===undefined){
+            return "*";
+        }else if(!isNaN(e)){
+            let dat = new Date(e);
+            let gh = dat.getHours();  let gm = dat.getMinutes(); 
+            let hh = gh < 10 ? '0'+gh : gh;
+            let mm = gm < 10 ? '0'+gm : gm;
+            return `${hh}:${mm}`;
+        }else{
+            return e;
+        }
+    })
+    console.log(resultado)
+
+    return {freq:[]}
+}
+
+function frecienciasHorizontalesAlt(){
     const _filas = [...filas];
     const freq_diff_reg_zero = []; const freq_diff_exp_zero = [];
     const freq_h_reg = []; const freq_h_exp = [];
