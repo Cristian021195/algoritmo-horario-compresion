@@ -1,79 +1,35 @@
-{//Modelo parcial, tomando como ejemplo el archivo exprebus-38-sabados-ns.xlsx
-    //de aqui sacamos: el n_columnas, y validamos que header[header.length -1] = "expreso"
-    "head":["tucuman","famailla","monteros","concepcion","aguilares","santa ana","alberdi","la cocha","los pizarros","rio huacra","veloz"],
-    "n_f":11,
-    "life":"11-12-2022",
-    "veloz":[3,5,9], // tuplas de expreso
-    "cv":[5,8],//columnas vacias
-    "v_freq":[//posiblemente donde haya celda *, no evaluar, o cargar como frecuencia 0,*, en el indice correspondiente.
-            {   
-                "f": 30, "i": [1,2,3,8,9,10]
-            },
-            {   
-                "f": 40, "i": [4,5]
-            },
-            {
-                "f": 5, "i": [6,7]
-            },
-            {   
-                "f": 40, "i": [4,5]
-            },
-            {
-                "f": 5, "i": [6,7]
-            },
-            {   
-                "f": 40, "i": [4,5]
-            },
-            {
-                "f": 5, "i": [6,7]
-            },
-            {   
-                "f": 40, "i": [4,5]
-            },
-            {
-                "f": 5, "i": [6,7]
-            },
-            {   
-                "f": 40, "i": [4,5]
-            },
-            {
-                "f": 5, "i": [6,7]
-            }
-    ],
-    "h_freq":[//posiblemente donde haya celda *, no evaluar, o cargar como frecuencia 0,*, en el indice correspondiente.
-            {   
-                "f": 30, "i": [1,2,3,8,9,10]
-            },
-            {   
-                "f": 40, "i": [4,5]
-            },
-            {
-                "f": 5, "i": [6,7]
-            },
-            {   
-                "f": 40, "i": [4,5]
-            },
-            {
-                "f": 5, "i": [6,7]
-            },
-            {   
-                "f": 40, "i": [4,5]
-            },
-            {
-                "f": 5, "i": [6,7]
-            },
-            {   
-                "f": 40, "i": [4,5]
-            },
-            {
-                "f": 5, "i": [6,7]
-            },
-            {   
-                "f": 40, "i": [4,5]
-            },
-            {
-                "f": 5, "i": [6,7]
-            }
-    ],
-
+{
+    "A-hr":"exprebus-38-sabados-ab",
+    "B-vi":"11-12-2022",
+    "C-th":["tucuman","famailla","monteros","concepcion","aguilares","santa ana","alberdi","la cocha","los pizarros","rio huacra","expreso"],
+    "D-vs":[1800, -300, 3900, 3600, 1800, 2400, 3000, -300, 3900],//strep xq calcula en base al anterior
+    "E-cf":[{"f":1,"c":3,"t":"06:50"},{"f":1,"c":4,"t":"07:15"},{"f":2,"c":0,"t":"06:00"},{"f":2,"c":1,"t":"06:25"},{"f":2,"c":2,"t":"06:45"},{"f":6,"c":6,"t":"10:40"},{"f":6,"c":7,"t":"11:10"}],    
+    "F-fc":[{"t": 4200, "c": 4},{"t": 1200, "c": 5},{"t": 1200, "c": 7},{"t": 1500, "c": 8},{"t": 900, "c": 9}],
+    "G-ef":[{"f":3,"c":0, "t":"06:30"},{"f":5,"c":0,"t":"08:00"},{"f":9,"c":0,"t":"10:30"}],
+    "H-tp":[4, 5, 7, 8, 9],
+    "I-zp":[1, 2, 3, 6],
+    "J-ta":[48600000, 52800000, 54000000, 55200000, 56700000, 57600000],    
+    "K-cv":[{"c":0,"r":[[0,1]]},{"c":1,"r":[[0,1],[3,3],[9]]},{"c":2,"r":[[0,1],[3,3],[9]]},{"c":3,"r":[[0,0],[3,3],[9]]},{"c":4,"r":[[0]]},{"c":5,"r":[[0,2],[4,8],[10]]},{"c":6,"r":[[0,5],[7,10]]},{"c":7,"r":[[0,5],[7,8],[10]]},{"c":8,"r":[[0,8],[10]]},{"c":9,"r":[[0,8],[10]]},{"c":10,"r":[]}]
 }
+
+
+/*  Estructura beta: v1.0.0
+
+    GLOSARIO: se lo usa para orientarnos en la descompresion / compresion
+    A: nombre del horario, empresa-ruta-dias-sentido
+    B: vigencia dd-mm-aaaa (dejarlo en dd-mm-aa)
+    C: listado de cuidades, cabecera de tabla + condicion expreso
+    D: arreglo de frecuencias verticales, sirve para desarrollar E
+    E: listado de celdas con su ubicacion y tiempo, el cual luego se calculará todo hacia abajo con la frecuencia vertical
+    F: listado de celdas con su frecuencia step y columna a la que pertenecen
+    G: listado de filas , con su ubicacion y tiempo de partida por el cual se calculará con la frec horizontal, los horarios hacia derecha
+    H: time pos, la posicion en columnas de aquellas celdas que tienen como dato "hh:mm"
+    I: zero pos, la posicion en columnas de aquellas celdas que tienen como dato 0
+    J: timearr, arreglo de frecuencias horizontales ya comprimido, se usa en el algoritmo con time pos
+    K: listado de columnas vacias, es el ultimo listado que se recorre para armar el horario al final
+
+    al final: podriamos hacer un JSON.stringify del objeto, y si supera n cantidad de caractares fragmentarlo en 2 o 3 QR pero 
+    seria otro algoritmo, indicando un hash de compatibilidad para que no se escaneen codigos QR invalidos de otras cosas
+
+    RECORDAR: una cosa es todo el trabajo para realizar la compresion, otro la descompresion, NO MEZCLAR. primero se busca tener la estructura de arriba.
+*/
