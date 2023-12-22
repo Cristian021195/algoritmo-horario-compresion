@@ -31,11 +31,11 @@ const evaluador_vacio = "*"; //a futuro, hacerlo expresion regular
 
 
 //Funciones del sistema
-//console.log(validarNombreArchivo(horario_str));
+console.log(validarNombreArchivo(horario_str));
 console.log("Data body:",[...filas]);
 frecuenciaVertical(HORARIO_OBJ, [...filas]);
 rangoColumnasVacias([...filas]);
-//ponerColumnasVacias([...filas])); //se ejecuta al final
+ponerColumnasVacias([...filas]); //se ejecuta al final
 llenadoDeHorariosComun([...filas]);
 
 
@@ -323,9 +323,8 @@ function validarNombreArchivo(nombre=""){
 
 function frecuenciaVertical(OH){
     let indice_pivote = 0;
-    let columna_pivote; //let col_aux_a; let col_aux_b; 
+    let columna_pivote;
     let saferow = 0;
-    //Recuperamos el sentido del horario
     if(OH?.sentido === 'ab'){
         indice_pivote = 0;
     }else if(OH?.sentido === 'ba'){
@@ -345,10 +344,6 @@ function frecuenciaVertical(OH){
     console.log(frecuencias_verticales);
     arregloExpresos();// console.log({filas_expreso, filas_regulares});
     console.log(frecienciasHorizontales());
-    
-    
-    
-
 }
 
 function buscarPivoteAuto(n_filas, safeRow){//quitando la ultima -1
