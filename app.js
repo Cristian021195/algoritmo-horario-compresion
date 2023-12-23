@@ -1,5 +1,7 @@
-import data from "./json/exprebus-38-sabados-ns.json" assert { type: 'json' };//cambiaria por ab / ba
-const NOMBRE_ARCHIVO = "exprebus-38-sabados-ab.json";
+//import data from "./json/exprebus-38-sabados-ns.json" assert { type: 'json' };
+//const NOMBRE_ARCHIVO = "exprebus-38-sabados-ab.json";
+import data from "./json/exprebus-38-sabados-sn.json" assert { type: 'json' };
+const NOMBRE_ARCHIVO = "exprebus-38-sabados-ba.json";
 const HORARIO = {
     empresa: "",
     ruta: 0,
@@ -7,24 +9,6 @@ const HORARIO = {
     sentido: "",
     vigencia: data.data_validity
 };
-
-/* nombres:
-evaluador
-orientation_regex
-words
-number
-evaluador_vacio
-columnas
-filas
-N_COLUMNAS
-N_FILAS
-RANGO_COLUMNAS_VACIAS
-rango_filas_vacias
-FRECUENCIAS_VERTICALES
-FILAS_REGULARES
-FILAS_EXPRESO
-
-*/
 
 //Expresiones regulares
 const evaluador = /^[(*) -/+.¡?!#$%&=°|<>_]/g; // quitar ^ si causa mas problemas
@@ -41,6 +25,7 @@ const N_FILAS = FILAS.length;
 const RANGO_COLUMNAS_VACIAS = [];
 const rango_filas_vacias = [];
 
+let NOMBRE_OK = false;
 let COL_PIVOTE = []; let INDICE_PIVOTE_VERTICAL = 0;
 let FRECUENCIAS_VERTICALES = [];
 let FRECUENCIAS_HORIZONTALES_EXPRESO = [];
@@ -48,7 +33,7 @@ let FILAS_REGULARES;
 let FILAS_EXPRESO;
 let PRIMERAS_CELDAS_REGULARES = [];
 let PRIMERAS_CELDAS_EXPRESO = [];
-
+let INSTRUCCION;
 
 /* El algoritmo consta de los siguientes pasos: 
     1 - se recibe el archivo, y se valida el nombre.
@@ -59,23 +44,25 @@ let PRIMERAS_CELDAS_EXPRESO = [];
     6 - se carga RANGO_COLUMNAS_VACIAS, es importante para desarrollar la compresion de instrucciones, sirve para llenar al final todas las columnas vacias
     7 - primerasCeldasRegulares() - falta desarrollar mas, nos da las instrucciones de llenado
     8 - ponerColumnasVacias(param), - falta desarrollar mas, pero hace uso de FILA en su totalidad, y su algoritmo se aplica con las instruccioens de RANGO_COLUMNAS_VACIAS para cargar las celdas vacias
- */
+*/
+
+console.table(FILAS);
 
 // Ejecucion del programa
-validarNombreArchivo(NOMBRE_ARCHIVO);
+NOMBRE_OK = validarNombreArchivo(NOMBRE_ARCHIVO);
 COL_PIVOTE = pivoteVertical();
 FRECUENCIAS_VERTICALES = frecuenciasVerticales();
 //PRIMERAS_CELDAS_REGULARES = primerasCeldasRegulares();
 PRIMERAS_CELDAS_REGULARES = primerasCeldasRegularesAlt();
-arregloExpresos();
+arregloExpresos(); // carga FILAS_EXPRESO FILAS_REGULARES
 //PRIMERAS_CELDAS_EXPRESO = primerasCeldasExpreso()
-PRIMERAS_CELDAS_EXPRESO = primerasCeldasExpresoAlt()
-FRECUENCIAS_HORIZONTALES_EXPRESO  = frecuenciasHorizontalesExpreso("si");
+PRIMERAS_CELDAS_EXPRESO = primerasCeldasExpresoAlt();
+FRECUENCIAS_HORIZONTALES_EXPRESO = frecuenciasHorizontalesExpreso("si"); // hacer evaluacion de expreso si no 1 - 0
 rangoColumnasVacias();
-
 //ponerColumnasVacias(r_c_v);
-console.table(FILAS);
-armarInstruccion();
+//console.table(FILAS);
+INSTRUCCION = armarInstruccion();
+console.log(INSTRUCCION);
 
 
 function armarInstruccion(tolerancia=2){
@@ -138,7 +125,7 @@ function armarInstruccion(tolerancia=2){
         instruccion.push(ob);
     })
 
-    console.log(instruccion);
+    return instruccion;
 }
 
 // Desarrollo de Funciones
@@ -175,6 +162,7 @@ function validarNombreArchivo(nombre=""){
     }    
 }
 function pivoteVertical(){
+    //la primera parte toma el indice si es ns o sn, siempre teniendo en cuenta que la ultima col es expreso, se quita siempre
     let saferow = 0;
     if(HORARIO?.sentido === 'ab'){
         INDICE_PIVOTE_VERTICAL = 0;
@@ -184,18 +172,22 @@ function pivoteVertical(){
     return buscarPivoteAuto(N_FILAS, saferow);
 }
 function buscarPivoteAuto(N_FILAS, safeRow){//quitando la ultima -1,//return traerColumna(0,0);
+    /* busca por columna, cual es la que mas filas para tomarla como pivote*/
     const long_arr = [];
     const obj = {pos:0, val:0}
+    let max_elem = 0;
     for(let c = 0; c<N_COLUMNAS-1; c++){
         let col = traerColumna(c, safeRow).filter(e=>e!=="*");
         long_arr.push(col.length);
     }
     for(let i = 0; i < long_arr.length; i++){
-        if (obj.val < long_arr[i]){
+        if(obj.val < long_arr[i]){
             obj.val = long_arr[i];
         }
     }
-    obj.pos = long_arr.findIndex(e=>e===10);
+
+    max_elem = Math.max(...long_arr); // toma el mayor valor del arreglo de columa
+    obj.pos = long_arr.findIndex(e=>e===max_elem); // trae el indice de la primer columna con mayor cantidad de registros
     return traerColumna(obj.pos, 0).filter(e=>e!=="*");
 }
 function traerColumna(indice, safeRow=0){//safeRow tiene que ser 1 si queremos rescatar la columna sin los valores de la primera fila
@@ -213,15 +205,14 @@ function frecuenciasVerticales(){// tomando referencia 0 a ultimo arreglo con su
     const freq_arr = []; const freq_diff = []; const freq_step = [];
 
     //freq_arr
-    for(let f = 0; f<COL_PIVOTE.length; f++){
+    for(let f = 0; f<COL_PIVOTE.length; f++){// recorre por cada elemento de la columna pivote
         let timeval = COL_PIVOTE[f].split(':');// cortamos los valores de json hhmmss
         let hh = timeval[0]; let mm = timeval[1];
         let dTime = new Date(1970,0,1,hh,mm); // creamos el tipo de dato fecha
         freq_arr.push(dTime.getTime()/1000); // guardamos un arreglo de tiempos en milisegundos para comparar
     }
 
-    //freq_diff
-    for(let i = 0; i < COL_PIVOTE.length; i++){
+    for(let i = 0; i < COL_PIVOTE.length; i++){ // por eliminar
         let diff = 0;
         if(i+1 !== COL_PIVOTE.length){
             diff = freq_arr[i + 1] - freq_arr[i];
@@ -236,7 +227,8 @@ function frecuenciasVerticales(){// tomando referencia 0 a ultimo arreglo con su
     arr_aux.pop();
     let res_arr = [0,...arr_aux];
 
-    //freq_step
+    /*freq_step: calcula la diferencia entre celdas de la columna con su contigua y las mete en un arreglo
+    obteniendo asi un arreglo de diferencias de horario */
     for(let i = 0; i < COL_PIVOTE.length; i++){
         let diff = 0;
         if(i+1 !== COL_PIVOTE.length){
@@ -244,7 +236,6 @@ function frecuenciasVerticales(){// tomando referencia 0 a ultimo arreglo con su
             freq_step.push(diff);            
         }
     }
-    //return {freq_arr, freq_diff:res_arr, freq_step};
     return freq_step;
 }
 function arregloExpresos(){
@@ -264,12 +255,10 @@ function arregloExpresos(){
     //sacamos cual tiene el mayor numero de horarios, guardamos el indice y calculamos con algoritmo de frecuencias
     FILAS_EXPRESO = freq_arr_exp;
     FILAS_REGULARES = freq_arr_reg;
-
-
 }
 
 
-function frecuenciasHorizontalesExpreso(condicion="si"){ // expreso, luego renombrar
+function frecuenciasHorizontalesExpreso(condicion="si"){ // expreso, luego renombrar 1 a 0 o ver
     
     let pivote = armarPivoteHorizontal(condicion);
     let freqarr = pivote.map((e)=>{
@@ -282,8 +271,10 @@ function frecuenciasHorizontalesExpreso(condicion="si"){ // expreso, luego renom
     let zero_pos = freqarr.map((e,ei)=>{if(e===0) return ei}).filter(e=>e!==undefined)
     let time_pos_aux = freqarr.map((e,ei)=>{if(e!==0) return ei}).filter(e=>e!==undefined)
     let time_pos = time_pos_aux.slice(1);
+    
     let timearr = freqarr.map((e,ei)=>{if(e!==0) return e}).filter(e=>e!==undefined)
-    let freqcalc = [];
+    let freqcalc = [];    
+
     for (let td = 0; td < timearr.length; td++) {
         if(td+1 == timearr.length) break;
         let calc = Math.abs(timearr[td] - timearr[td+1])/1000;
@@ -393,8 +384,9 @@ function primerasCeldasRegularesAlt(){
     const nfila = N_FILAS; const ncol = N_COLUMNAS - 1;//Puede dar error, analizar si es f o col
     const arr_pos_a_llenar_col = []; const arr_pos_a_llenar_row = [];
     const arr_pos_a_llenar = []; const res_aux = [];
-    for (let f = 0; f < nfila; f++) {
-        
+
+/* itera buscando aquellas filas que no sean expreso, llenando un arreglo de los indices de columnas y otro de filas correspondientes */
+    for (let f = 0; f < nfila; f++) {        
         for (let c = 0; c < ncol; c++) {
             const evex = FILAS[f][ncol];
             if(evex == 'si'){ // en futuro 1 o 0
@@ -413,17 +405,19 @@ function primerasCeldasRegularesAlt(){
         }        
     }
 
+/* Una vez llenadi los arreglos, iteramos el de columnas y agregamos a otro arreglo objetos donde alojan, valor de fila, valor de colmna y tiempos asociados
+a esos rangos */
     for (let i = 0; i < arr_pos_a_llenar_col.length; i++) {
         arr_pos_a_llenar.push(
             {
                 f:arr_pos_a_llenar_row[i],
                 c:arr_pos_a_llenar_col[i],
-                //t:FILAS[arr_pos_a_llenar_row[i]][arr_pos_a_llenar_col[i]]
                 t:FILAS[arr_pos_a_llenar_row[i]][arr_pos_a_llenar_col[i]].substring(0,5)
-            });
+            }
+        );
     }
 
-
+    /*en un nuevo arreglo res_aux, guardamos aquellos elementos de pos_a_llenar que no se repitan*/
     let fila = 0; let columnas = []; let horas = [];
     arr_pos_a_llenar.forEach((e,ei)=>{        
         if(arr_pos_a_llenar[ei+1] !== undefined){
@@ -450,16 +444,21 @@ function primerasCeldasRegularesAlt(){
 function primerasCeldasExpresoAlt(){
     const nfila = N_FILAS; const ncol = N_COLUMNAS - 1;//Puede dar error, analizar si es f o col
     const res_aux = [];
-    const arr_pos_a_llenar = []; const sentido = 0; // sentido cambiaria con sn/ns ab/ba
+    const arr_pos_a_llenar = []; let cabeza = 0; // sentido cambiaria con sn/ns ab/ba
+    
+    if(HORARIO.sentido == "ab"){ // cambiar por 1 o 0
+        cabeza = 0;
+    }else if (HORARIO.sentido == "ba"){
+        cabeza = N_COLUMNAS - 2;// puede ser error
+    }
 
     FILAS_EXPRESO.forEach((e,ei)=>{
-        const evex = FILAS[e][sentido];
+        const evex = FILAS[e][cabeza];
         // [{"f":3,"c":0, "t":"06:30"},{"f":5,"c":0,"t":"08:00"},{"f":9,"c":0,"t":"10:30"}],
         if(evex != '*'){ // en futuro 1 o 0
-            arr_pos_a_llenar.push({f:e, c:sentido, t:evex});
+            arr_pos_a_llenar.push({f:e, c:cabeza, t:evex});
         }
     })
-
 
     let columna = 0; let filas = []; let horas = [];
     arr_pos_a_llenar.forEach((e,ei)=>{        
@@ -494,7 +493,7 @@ function primerasCeldasExpreso(){
             arr_pos_a_llenar.push({f:e, c:sentido, t:evex.substring(0,5)}); // los substring eventualmente deberian de desaparecer cuando ordenemos el backend
         }
     })
-    console.log(arr_pos_a_llenar)
+    //console.log(arr_pos_a_llenar)
     return arr_pos_a_llenar;
 
     //crearColumnaHorario(1,5); // de descompresion    
