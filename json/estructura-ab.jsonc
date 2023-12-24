@@ -1,29 +1,4 @@
 [
-    {
-        "Z":10,
-        "A":"exprebus-38-sabados-ab",
-        "B":"11-12-2022",
-        "C":["tucuman","famailla","monteros","concepcion","aguilares","santa ana","alberdi","la cocha","los pizarros","rio huacra","expreso"],
-        "D":[1800, -300, 3900, 3600, 1800, 2400, 3000, -300, 3900],
-        "E":[{"f":1,"c":3,"t":"06:50"},{"f":1,"c":4,"t":"07:15"},{"f":2,"c":0,"t":"06:00"},{"f":2,"c":1,"t":"06:25"},{"f":2,"c":2,"t":"06:45"},{"f":6,"c":6,"t":"10:40"},{"f":6,"c":7,"t":"11:10"}],    
-        "F":[{"f":3,"c":0, "t":"06:30"},{"f":5,"c":0,"t":"08:00"},{"f":9,"c":0,"t":"10:30"}],
-        "G":[{"t": 4200, "c": 4},{"t": 1200, "c": 5},{"t": 1200, "c": 7},{"t": 1500, "c": 8},{"t": 900, "c": 9}],        
-        "K":[{"c":0,"r":[[0,1]]},{"c":1,"r":[[0,1],[3,3],[9]]},{"c":2,"r":[[0,1],[3,3],[9]]},{"c":3,"r":[[0,0],[3,3],[9]]},{"c":4,"r":[[0]]},{"c":5,"r":[[0,2],[4,8],[10]]},{"c":6,"r":[[0,5],[7,10]]},{"c":7,"r":[[0,5],[7,8],[10]]},{"c":8,"r":[[0,8],[10]]},{"c":9,"r":[[0,8],[10]]},{"c":10,"r":[]}]
-    },
-    [
-        {            
-            "A":"exprebus-38-sabados-ab",
-            "B":"11-12-23",
-            "C":["tucuman","famailla","monteros","concepcion","aguilares","santa ana","alberdi","la cocha","los pizarros","rio huacra","expreso"],
-            "D":[1800,-300,3900,3600,1800,2400,3000,-300,3900],
-            "E":"[[1,[3,4],[\"06:50\",\"07:15\"]],[2,[0,1,2],[\"06:00\",\"06:25\",\"06:45\"]],[6,[6,7],[\"10:40\",\"11:10\"]]]",
-            "F":"[[0,[3,5,9],[\"06:30:00\",\"08:00:00\",\"10:30:00\"]]]",
-            "G":[{"t":4200,"c":4},{"t":1200,"c":5},{"t":1200,"c":7},{"t":1500,"c":8},{"t":900,"c":9}],
-            "H":[{"c":0,"r":[[0,1]]},{"c":1,"r":[[0,1],[3,3],[9]]},{"c":2,"r":[[0,1],[3,3],[9]]},{"c":3,"r":[[0,0],[3,3],[9]]},{"c":4,"r":[[0]]},{"c":5,"r":[[0,2],[4,8],[10]]},{"c":6,"r":[[0,5],[7,10]]},{"c":7,"r":[[0,5],[7,8],[10]]},{"c":8,"r":[[0,8],[10]]},{"c":9,"r":[[0,8],[10]]},{"c":10,"r":[]}],
-            "I":11
-        }
-
-    ],
     [
         {
             "K":1,
@@ -59,7 +34,8 @@
     D: arreglo de frecuencias verticales, sirve para desarrollar E
     E: listado de celdas con su ubicacion y tiempo, el cual luego se calculará todo hacia abajo con la frecuencia vertical D    
     F: listado de filas , con su ubicacion y tiempo de partida por el cual se calculará con la frec horizontal, los horarios hacia derecha    
-    G: listado de columnas vacias, es el ultimo listado que se recorre para armar el horario al final
+    G: 
+    H: rango de celdas vacias, para al final poner las vacias
     Z: numero de filas, para el numero de columnas lo calculamos con el listado de ciudades
 
     al final: podriamos hacer un JSON.stringify del objeto, y si supera n cantidad de caractares fragmentarlo en 2 o 3 QR pero 
