@@ -9,10 +9,21 @@
     {
         "K": 2,
         "A": "exprebus-38-sabados-ba",
-        "E": [[0,[5,6,7,8,9],["04:00","04:25","05:00","05:20","05:50"]],[3,[1,2,3],["05:30","05:45","06:15"]],[0,[0],["08:50"]]],//primeros elementos visibles de arriba a abajo
+        "E": [[0,[5,6,7,8,9],["04:00","04:25","05:00","05:20","05:50"]],[3,[1,2,3],["05:30","05:45","06:15"]],[0,[9],["08:50"]]],//primeros elementos visibles de arriba a abajo
         "F": [[9,[2,5,8],["07:20","09:40","11:40"]]],//sirve para expresos e inicializar (puede que deba evaluar el sentido ab/ba)
         "G": [{"t": 1500,"c": 6},{"t": 2100,"c": 7},{"t": 1200,"c": 8},{"t": 1800,"c": 9}],//frecuencias expreso(?)
         "H":[{"c":0,"r":[[0,8],[10]]},{"c":1,"r":[[0,2],[4,10]]},{"c":2,"r":[[0,2],[5,8],[10]]},{"c":3,"r":[[0,1],[5,8],[10]]},{"c":4,"r":[[0,10]]},{"c":5,"r":[]},{"c":6,"r":[]},{"c":7,"r":[]},{"c":8,"r":[]},{"c":9,"r":[]},{"c":10,"r":[]}],//celdas vacias: al final
         "I": 11// numero de filas totales
     }
 ]
+
+/*
+25-12-23
+El campo F puede que este mal, ya que al tener las frecuencias verticales podemos tener aquellas celdas que son pivote 
+de la fila expreso a la que corresponden, de esta manera solo tendremos que armar el pivote horizontal en base 
+a que tiene mayor cantidad de celda (pero como es salteado y hay celdas vacias de por medio) nos quedaria una instruccion 
+algo similar a:
+    "F":[[1800,0,3600,0,0,4200,2400,0,1800,1800], [2,5,8]]
+    donde se itera, ver como la hacemos
+    tomar de ejemplo al horario de exprebus
+*/
