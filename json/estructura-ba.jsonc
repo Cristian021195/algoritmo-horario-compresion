@@ -4,7 +4,7 @@
         "A": "exprebus-38-sabados-ba",
         "B": "12-12-23",
         "C": ["rio huacra","los pizarros","la cocha","alberdi","santa ana","aguilares","concepcion","monteros","famailla","tucuman","expreso"],//cabecera, nos permite obtener el n columnas de paso
-        "D": [1800,3600,4200,2400,1800,1800,1800,3600,1800,2400]//frecuencias (verticales)
+        "D": [1800,3600,4200,2400,1800,1800,1800,3600,1800,2400]//frecuencias (verticales) pivote vertical
     },
     {
         "K": 2,
