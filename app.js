@@ -60,7 +60,7 @@ NOMBRE_OK = validarNombreArchivo(NOMBRE_ARCHIVO);
 COL_PIVOTE = pivoteVertical();
 FRECUENCIAS_VERTICALES = frecuenciasVerticales();
 FRECUENCIAS_VERTICALES_ALT = frecuenciasVerticalesAlt();
-PRIMERAS_CELDAS_REGULARES = primerasCeldasRegularesAlt();//PRIMERAS_CELDAS_REGULARES = primerasCeldasRegulares();
+PRIMERAS_CELDAS_REGULARES = primerasCeldasRegularesAlt();//E: PRIMERAS_CELDAS_REGULARES = primerasCeldasRegulares();
 arregloExpresos(); // carga FILAS_EXPRESO FILAS_REGULARES
 PRIMERAS_CELDAS_EXPRESO = primerasCeldasExpreso()
 //PRIMERAS_CELDAS_EXPRESO = primerasCeldasExpresoAlt();
@@ -70,19 +70,27 @@ rangoColumnasVacias();
 //console.table(FILAS);
 INSTRUCCION = armarInstruccion(2, 1);
 console.log(INSTRUCCION);
-console.log(FRECUENCIAS_VERTICALES_ALT);
 //console.log(JSON.stringify(INSTRUCCION));
 
 
 
 // decompresion: todo se debe obtener por los datos de la instruccion
+let SENTIDO_CLIENT = sentidoClient();// :str
 let FILAS_CLIENT = nFilasClient();// :num
 let COLUMNAS_TH_CLIENT = headerClient();// :[str], con su lenght sacamos el n columnas 
 let BASE_ARR_CLIENT = llenadoBase(FILAS_CLIENT, COLUMNAS_TH_CLIENT.length, "*");// :[str][str], prerara el arreglo resultante con str, [*][*]
 //let EXP_COLS_CLIENT = columnaExpreso("no"); // :[str], arreglo de strings donde indica que celdas son expreso y cuales no de la ult columna
 let COVER_COLS_CLIENT = primerasCeldasSuperiores();//[obj] que contiene las celdas con posicion de fila, columnas y horarios pivote
 let PIVOTE_FREC_VERTICUAL = pivoteFrecuenciaVertical();
-console.log(primerLlenado(COVER_COLS_CLIENT, PIVOTE_FREC_VERTICUAL));
+let PIVOTE_EXP_HORIZONTAL = pivoteExpresoHorizontalClient();
+let VACIO_ARR_CLIENT = vacioArrClient();
+let COL_EXP_CLIENT = ultimaColumna("no","si",FILAS_CLIENT, PIVOTE_EXP_HORIZONTAL[0]);
+primerLlenado(COVER_COLS_CLIENT, PIVOTE_FREC_VERTICUAL);
+segundoLlenado(PIVOTE_EXP_HORIZONTAL, SENTIDO_CLIENT, FILAS_CLIENT);
+tercerLlenado(COL_EXP_CLIENT, COLUMNAS_TH_CLIENT.length);
+cuartoLlenado(COLUMNAS_TH_CLIENT);
+console.log("VACIO_ARR_CLIENT: ", VACIO_ARR_CLIENT)
+console.log(BASE_ARR_CLIENT);
 
 
 //helpers
@@ -92,7 +100,12 @@ function hhmmToMilisec(hhmm="00:00", div=1){
     let dt = new Date(1970,0,1,hh,mm);
     return dt.getTime() / div;
 }
-
+function milisecToHhmm(time = 10800000, mult=1, separator=":"){
+    let td = new Date(time*mult);
+    let hh = td.getHours() < 10 ? "0"+td.getHours() : ""+td.getHours();
+    let mm = td.getMinutes() < 10 ? "0"+td.getMinutes() : ""+td.getMinutes();
+    return hh+separator+mm;
+}
 // Funciones de Armado de instruccion
 function validarNombreArchivo(nombre=""){
     const name_arr_dot = nombre.split('.');
@@ -138,8 +151,8 @@ function pivoteVertical(){
 }
 function frecuenciasVerticalesAlt(){// tomando referencia 0 a ultimo arreglo con sumatoria de minutos
     let celPiv = hhmmToMilisec(COL_PIVOTE[0], 1000);
-    let arrPivMilisec = COL_PIVOTE.map((e)=>hhmmToMilisec(e,1000))
-    console.log({COL_PIVOTE, celPiv,arrPivMilisec})
+    let arrPivMilisec = COL_PIVOTE.map((e)=>hhmmToMilisec(e,1000))    
+    //console.log({COL_PIVOTE, celPiv,arrPivMilisec})
     return 0;
 }
 function frecuenciasVerticales(){// tomando referencia 0 a ultimo arreglo con sumatoria de minutos
@@ -147,10 +160,7 @@ function frecuenciasVerticales(){// tomando referencia 0 a ultimo arreglo con su
 
     //freq_arr
     for(let f = 0; f<COL_PIVOTE.length; f++){// recorre por cada elemento de la columna pivote
-        let timeval = COL_PIVOTE[f].split(':');// cortamos los valores de json hhmmss
-        let hh = timeval[0]; let mm = timeval[1];
-        let dTime = new Date(1970,0,1,hh,mm); // creamos el tipo de dato fecha
-        freq_arr.push(dTime.getTime()/1000); // guardamos un arreglo de tiempos en milisegundos para comparar
+        freq_arr.push(hhmmToMilisec(COL_PIVOTE[f],1000)); // guardamos un arreglo de tiempos en milisegundos para comparar
     }
 
     for(let i = 0; i < COL_PIVOTE.length; i++){ // por eliminar
@@ -203,47 +213,48 @@ function primerasCeldasRegularesAlt(){
             }
         }        
     }
-/* Una vez llenado los arreglos, iteramos el de columnas y agregamos a otro arreglo objetos donde alojan, valor de fila, valor de colmna y tiempos asociados
-a esos rangos */
+    //console.log("arr_pos_a_llenar_col: ", arr_pos_a_llenar_col)
+    /* Una vez llenado los arreglos, iteramos el de columnas y agregamos a otro arreglo objetos donde alojan, valor de fila, valor de colmna y tiempos asociados
+    a esos rangos */
     for (let i = 0; i < arr_pos_a_llenar_col.length; i++) {
         arr_pos_a_llenar.push(
             {
                 f:arr_pos_a_llenar_row[i],
                 c:arr_pos_a_llenar_col[i],
                 t:FILAS[arr_pos_a_llenar_row[i]][arr_pos_a_llenar_col[i]].substring(0,5)
+                //para el caso de t: evaluar de hacer la conversion directamente a hhmm con hhmmToMilisec()
             }
         );
     }
 
     /*en un nuevo arreglo res_aux, guardamos aquellos elementos de pos_a_llenar que no se repitan*/
+    //console.log("arr_pos_a_llenar: ",arr_pos_a_llenar)
     let fila = 0; let columnas = []; let horas = [];
     arr_pos_a_llenar.forEach((e,ei)=>{        
         if(arr_pos_a_llenar[ei+1] !== undefined){
             if(arr_pos_a_llenar[ei].f === arr_pos_a_llenar[ei+1].f){
                 fila = arr_pos_a_llenar[ei].f;
                 columnas.push(arr_pos_a_llenar[ei].c);
-                let arr_t = arr_pos_a_llenar[ei].t.split(":");
-                let ahh = arr_t[0]; let amm = arr_t[1];
-                horas.push((new Date(1970,0,1,ahh,amm).getTime())/1000);
-                //horas.push(arr_pos_a_llenar[ei].t)
+                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, 1000));                
             }else{
                 columnas.push(arr_pos_a_llenar[ei].c);
-                let arr_t = arr_pos_a_llenar[ei].t.split(":");
-                let ahh = arr_t[0]; let amm = arr_t[1];
-                horas.push((new Date(1970,0,1,ahh,amm).getTime())/1000);
-                //horas.push(arr_pos_a_llenar[ei].t)
+                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, 1000));    
                 res_aux.push([fila, columnas, horas]);
                 fila = 0; columnas = []; horas = [];
             }            
         }else{
-            fila = 0; columnas = []; horas = [];
-            fila = arr_pos_a_llenar[ei].f;
-            columnas.push(arr_pos_a_llenar[ei].c);
-            let arr_t = arr_pos_a_llenar[ei].t.split(":");
-            let ahh = arr_t[0]; let amm = arr_t[1];
-            horas.push((new Date(1970,0,1,ahh,amm).getTime())/1000);
-            //horas.push(arr_pos_a_llenar[ei].t)
-            res_aux.push([fila, columnas, horas]);
+            if(arr_pos_a_llenar[ei].f === arr_pos_a_llenar[ei-1].f){
+                columnas.push(arr_pos_a_llenar[ei].c);
+                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, 1000));    
+                res_aux.push([fila, columnas, horas]);
+                fila = 0; columnas = []; horas = [];
+            }else{
+                fila = 0; columnas = []; horas = [];
+                fila = arr_pos_a_llenar[ei].f;
+                columnas.push(arr_pos_a_llenar[ei].c);
+                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, 1000));
+                res_aux.push([fila, columnas, horas]);  
+            }
         }
     })
     return res_aux;
@@ -305,7 +316,7 @@ function frecuenciasHorizontalesExpreso(condicion="si"){ // expreso, luego renom
     return freqcalc;
 }
 function rangoColumnasVacias(){
-    for(let c = 0; c<N_COLUMNAS; c++){
+    /*for(let c = 0; c<N_COLUMNAS; c++){
         const a = {c:c,r:[]};
         for(let f = 0; f<N_FILAS; f++){
             const ev = FILAS[f][c].trim().charAt(0);
@@ -314,10 +325,23 @@ function rangoColumnasVacias(){
             }
         }
         RANGO_COLUMNAS_VACIAS.push(a);
-    }    
+    }
     RANGO_COLUMNAS_VACIAS.forEach(e=> {
         e.r = notacionRangoArray(e.r);
-    });
+    });*/
+    const rowi = [];
+    for(let c = 0; c<N_COLUMNAS; c++){
+        let wi = [];
+        for(let f = 0; f<N_FILAS; f++){
+            const ev = FILAS[f][c].trim().charAt(0);
+            if(ev === "*"){
+                wi.push(f);
+            }
+        }
+        rowi.push(notacionRangoArray(wi));
+    }
+    console.log("rowi",rowi);
+
 }
 function armarInstruccion(tolerancia=2, puja = 1){// la puja solo funciona para agregar mas elementos del objeto al primer arreglo (que suele ser mas pequeño)
     const INDX = ['A','B','C','D','E','F','G','H','I'];// debe respetarse, en glosario está la información
@@ -461,6 +485,7 @@ function armarPivoteHorizontal(valor_ultima_celda){
 }
 function notacionRangoArray(evalarr){//[0,1,2,3,4,5,7,8,10]
     // Este algoritmo de compresion de instruccion, reduce entre un 17% a 20% el tamaño de arreglo de filas vacias
+    let resultarr; let outher; let inner; let res = [];
     if (Array.isArray(evalarr) && evalarr?.length) {// no vacio
         const res = [];
         let jumper = false;
@@ -483,10 +508,16 @@ function notacionRangoArray(evalarr){//[0,1,2,3,4,5,7,8,10]
         //rng.push(evalarr[evalarr.length-1]); // descomentar y quitar if else de arriba para volver como antes
         res.push(rng);
         rng = [];
-        return res;    
+        resultarr = res;
+        //return res;    
     }else{
-        return [];
-    }    
+        resultarr = [];
+        //return [];
+    }
+    //console.log(JSON.stringify(resultarr))
+
+
+    return resultarr; // pendiente 27-12-2023 se puede comprimir mas
 }
 function primerasCeldasExpresoAlt(){
     const nfila = N_FILAS; const ncol = N_COLUMNAS - 1;//Puede dar error, analizar si es f o col
@@ -528,7 +559,7 @@ function primerasCeldasExpresoAlt(){
     //crearColumnaHorario(1,5); // de descompresion    
 }
 function primerasCeldasExpreso(){
-    const nfila = N_FILAS; const ncol = N_COLUMNAS - 1;//Puede dar error, analizar si es f o col
+    const nfila = N_FILAS; const ncol = N_COLUMNAS;//Puede dar error, analizar si es f o col
     let cabeza = N_COLUMNAS - 2; let max = 0; let cant = 0; let pivote = 0;
     let hh; let mm; let pivote_arr_time = [];
     let res_aux = []; let arr_aux = [];
@@ -657,9 +688,26 @@ function primerasCeldasSuperiores(){
     })
     return res;
 }
+function sentidoClient(){
+    let key = INSTRUCCION[0]["A"]
+    let arr = key.split("-");
+    return arr[arr.length-1];
+}
 function nFilasClient(){
     let nfila = INSTRUCCION[INSTRUCCION.length - 1]["I"]
     return nfila;
+}
+function pivoteExpresoHorizontalClient(){
+    let res;
+    INSTRUCCION.forEach(obj=>{
+        for(let key in obj){
+            if(key == "F"){
+                res = obj[key];
+                break;
+            }
+        }
+    })
+    return res;
 }
 function headerClient(){
     let res;
@@ -673,8 +721,22 @@ function headerClient(){
     })
     return res;
 }
-function llenadoBase(c=1, f=1, a="*"){
-    let aux_arr = [];
+function vacioArrClient(){
+    let res;
+    INSTRUCCION.forEach(obj=>{
+        for(let key in obj){
+            if(key == "H"){
+                res = obj[key];
+                break;
+            }
+        }
+    })
+    return res;
+}
+function llenadoBase(c=1, f=1, a="*"){// hay una cuestion con las referencias, interesante
+    return Array(f).fill().map(_ => Array(c).fill("*"))
+    
+    /*let aux_arr = [];
     const base_arr = [];
     for (let i = 0; i < f; i++) {
         for (let t = 0; t < c; t++) {
@@ -682,7 +744,7 @@ function llenadoBase(c=1, f=1, a="*"){
         }
         base_arr.push(aux_arr);
     }
-    return base_arr;
+    return base_arr;*/
 }
 function columnaExpreso(t="no"){
     let res = [];
@@ -705,9 +767,62 @@ function columnaExpreso(t="no"){
     return res_arr;
 }
 function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada uno le aplicamos la correspondiente frecuencia hacia abajo
+    COV.forEach((ea,eai)=>{
+        let rowi = ea[0];
+        ea[1].forEach((e,ei)=>{
+            //BASE_ARR_CLIENT[rowi][e] = milisecToHhmm(ea[2][ei], 1000);
+            BASE_ARR_CLIENT[rowi][e] = ea[2][ei];
+        })
+    });
+
+    COV.forEach((ea,eai)=>{
+        let rowi = ea[0];
+
+        ea[1].forEach((e,ei)=>{
+            for (let xf = rowi; xf < FILAS_CLIENT-1; xf++) {
+                let calc = BASE_ARR_CLIENT[xf][e] + PFV[xf-1];
+                BASE_ARR_CLIENT[xf+1][e] = calc;
+                //console.log("base arr it: cl:", ei, BASE_ARR_CLIENT[xf][e])
+            }
+        })
+    });
 
     return {COV, PFV};
 }
+function segundoLlenado(PEH, SC, FC){
+    let piv = 0; let pospiv = PEH[0]; let postime = PEH[1]; let freqs = PEH[2];
+    let colsize = COLUMNAS_TH_CLIENT.length - 1;
+    if(SC == "ab"){ piv = 0; }else{ piv = colsize - 1; }
+
+    pospiv.forEach((pp,ppi)=>{
+        BASE_ARR_CLIENT[pp][piv] = postime[ppi];
+    })
+
+    pospiv.forEach((pp,ppi)=>{
+        freqs.forEach((ff,ffi)=>{
+            let sum = BASE_ARR_CLIENT[pp][piv] + ff;
+            BASE_ARR_CLIENT[pp][ffi] = sum;
+        })
+    })
+}
+function tercerLlenado(CEC, size){//si no de expreso
+    //COL_EXP_CLIENT
+    CEC.forEach((ce,cei)=>{
+        BASE_ARR_CLIENT[cei][size-1] = ce;
+    })
+}
+function cuartoLlenado(th){
+    BASE_ARR_CLIENT.unshift(th)
+}
+
+function ultimaColumna(n="no",p="si", FC, PEH){//si no de expreso
+    let res_arr = Array(FC).fill(null).map((u, i) => n);
+    PEH.forEach(e=>{
+        res_arr[e] = p;
+    })
+    return res_arr;
+}
+
 function pivoteFrecuenciaVertical(){ // llenado cortina, tomamos el COVER y a cada uno le aplicamos la correspondiente frecuencia hacia abajo
     let res;
     INSTRUCCION.forEach(obj=>{
