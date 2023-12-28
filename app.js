@@ -22,8 +22,9 @@ const COLUMNAS = data.data_header;
 const FILAS = [...data.data_body];
 const N_COLUMNAS = COLUMNAS.length;
 const N_FILAS = FILAS.length;
-const RANGO_COLUMNAS_VACIAS = [];
+let RANGO_COLUMNAS_VACIAS = [];
 const rango_filas_vacias = [];
+const MULT_DIV = 10000;
 
 let NOMBRE_OK = false;
 let COL_PIVOTE = []; let INDICE_PIVOTE_VERTICAL = 0;
@@ -69,8 +70,7 @@ rangoColumnasVacias();
 //ponerColumnasVacias(r_c_v);
 //console.table(FILAS);
 INSTRUCCION = armarInstruccion(2, 1);
-console.log(INSTRUCCION);
-//console.log(JSON.stringify(INSTRUCCION));
+console.log(JSON.stringify(INSTRUCCION));
 
 
 
@@ -88,9 +88,12 @@ let COL_EXP_CLIENT = ultimaColumna("no","si",FILAS_CLIENT, PIVOTE_EXP_HORIZONTAL
 primerLlenado(COVER_COLS_CLIENT, PIVOTE_FREC_VERTICUAL);
 segundoLlenado(PIVOTE_EXP_HORIZONTAL, SENTIDO_CLIENT, FILAS_CLIENT);
 tercerLlenado(COL_EXP_CLIENT, COLUMNAS_TH_CLIENT.length);
-cuartoLlenado(COLUMNAS_TH_CLIENT);
-console.log("VACIO_ARR_CLIENT: ", VACIO_ARR_CLIENT)
-console.log(BASE_ARR_CLIENT);
+console.log("VACIO_ARR_CLIENT: ", JSON.stringify(VACIO_ARR_CLIENT))
+cuartoLlenado(VACIO_ARR_CLIENT);
+quintoLlenado(FILAS_CLIENT,COLUMNAS_TH_CLIENT.length, MULT_DIV);
+sextoLlenado(COLUMNAS_TH_CLIENT);
+//console.log("VACIO_ARR_CLIENT: ", VACIO_ARR_CLIENT)
+console.table(BASE_ARR_CLIENT);
 
 
 //helpers
@@ -150,8 +153,8 @@ function pivoteVertical(){
     return buscarPivoteAuto(N_FILAS, saferow);
 }
 function frecuenciasVerticalesAlt(){// tomando referencia 0 a ultimo arreglo con sumatoria de minutos
-    let celPiv = hhmmToMilisec(COL_PIVOTE[0], 1000);
-    let arrPivMilisec = COL_PIVOTE.map((e)=>hhmmToMilisec(e,1000))    
+    let celPiv = hhmmToMilisec(COL_PIVOTE[0], MULT_DIV);
+    let arrPivMilisec = COL_PIVOTE.map((e)=>hhmmToMilisec(e,MULT_DIV))    
     //console.log({COL_PIVOTE, celPiv,arrPivMilisec})
     return 0;
 }
@@ -160,7 +163,7 @@ function frecuenciasVerticales(){// tomando referencia 0 a ultimo arreglo con su
 
     //freq_arr
     for(let f = 0; f<COL_PIVOTE.length; f++){// recorre por cada elemento de la columna pivote
-        freq_arr.push(hhmmToMilisec(COL_PIVOTE[f],1000)); // guardamos un arreglo de tiempos en milisegundos para comparar
+        freq_arr.push(hhmmToMilisec(COL_PIVOTE[f],MULT_DIV)); // guardamos un arreglo de tiempos en milisegundos para comparar
     }
 
     for(let i = 0; i < COL_PIVOTE.length; i++){ // por eliminar
@@ -235,24 +238,24 @@ function primerasCeldasRegularesAlt(){
             if(arr_pos_a_llenar[ei].f === arr_pos_a_llenar[ei+1].f){
                 fila = arr_pos_a_llenar[ei].f;
                 columnas.push(arr_pos_a_llenar[ei].c);
-                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, 1000));                
+                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, MULT_DIV));                
             }else{
                 columnas.push(arr_pos_a_llenar[ei].c);
-                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, 1000));    
+                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, MULT_DIV));    
                 res_aux.push([fila, columnas, horas]);
                 fila = 0; columnas = []; horas = [];
             }            
         }else{
             if(arr_pos_a_llenar[ei].f === arr_pos_a_llenar[ei-1].f){
                 columnas.push(arr_pos_a_llenar[ei].c);
-                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, 1000));    
+                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, MULT_DIV));    
                 res_aux.push([fila, columnas, horas]);
                 fila = 0; columnas = []; horas = [];
             }else{
                 fila = 0; columnas = []; horas = [];
                 fila = arr_pos_a_llenar[ei].f;
                 columnas.push(arr_pos_a_llenar[ei].c);
-                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, 1000));
+                horas.push(hhmmToMilisec(arr_pos_a_llenar[ei].t, MULT_DIV));
                 res_aux.push([fila, columnas, horas]);  
             }
         }
@@ -279,7 +282,7 @@ function frecuenciasHorizontalesExpreso(condicion="si"){ // expreso, luego renom
 
     for (let td = 0; td < timearr.length; td++) {
         if(td+1 == timearr.length) break;
-        let calc = Math.abs(timearr[td] - timearr[td+1])/1000;
+        let calc = Math.abs(timearr[td] - timearr[td+1])/MULT_DIV;
         freqcalc.push({t:calc, c:time_pos[td]});
     }
 
@@ -295,7 +298,7 @@ function frecuenciasHorizontalesExpreso(condicion="si"){ // expreso, luego renom
     arr[0] = valpiv; arr[arr.length-1] = 'si'; // futuro 1 o 0
     
     freqcalc.forEach((fc)=>{
-        valpiv += (fc.calc*1000);
+        valpiv += (fc.calc*MULT_DIV);
         arr[fc.c] = valpiv;
     })
 
@@ -330,7 +333,7 @@ function rangoColumnasVacias(){
         e.r = notacionRangoArray(e.r);
     });*/
     const rowi = [];
-    for(let c = 0; c<N_COLUMNAS; c++){
+    for(let c = 0; c<N_COLUMNAS-1; c++){
         let wi = [];
         for(let f = 0; f<N_FILAS; f++){
             const ev = FILAS[f][c].trim().charAt(0);
@@ -339,8 +342,9 @@ function rangoColumnasVacias(){
             }
         }
         rowi.push(notacionRangoArray(wi));
+        //rowi.push(wi);
     }
-    console.log("rowi",rowi);
+    RANGO_COLUMNAS_VACIAS = rowi;
 
 }
 function armarInstruccion(tolerancia=2, puja = 1){// la puja solo funciona para agregar mas elementos del objeto al primer arreglo (que suele ser mas pequeño)
@@ -514,9 +518,18 @@ function notacionRangoArray(evalarr){//[0,1,2,3,4,5,7,8,10]
         resultarr = [];
         //return [];
     }
-    //console.log(JSON.stringify(resultarr))
-
-
+    if(resultarr.length > 1){
+        resultarr = resultarr.map(ra=>{
+            if(ra.length == 2){
+                if(ra[0] == ra[1]){
+                    return [ra[0]]
+                }
+                return ra
+            }else{
+                return ra
+            }
+        })
+    }
     return resultarr; // pendiente 27-12-2023 se puede comprimir mas
 }
 function primerasCeldasExpresoAlt(){
@@ -629,7 +642,7 @@ function primerasCeldasExpreso(){
             if(e == 0){
                 return 0
             }else{
-                let rt = (e - baseTime) / 1000; // AQUI ES CORRECTO QUE SEA POSITIVO
+                let rt = (e - baseTime) / MULT_DIV; // AQUI ES CORRECTO QUE SEA POSITIVO
                 return rt;
             }
         }).slice(0, ncol-1);
@@ -638,7 +651,7 @@ function primerasCeldasExpreso(){
             if(e == 0){
                 return 0
             }else{
-                let rt = (baseTime - e) / 1000; // RECORDAR QUE EN DECOMPRESION VA TODO NEGATIVO
+                let rt = (baseTime - e) / MULT_DIV; // RECORDAR QUE EN DECOMPRESION VA TODO NEGATIVO
                 return rt;
             }
         }).slice(0, ncol-1);
@@ -651,7 +664,7 @@ function primerasCeldasExpreso(){
                 if(ci == cabeza){
                     let fearr = FILAS[r][ci].split(":");
                     let fehh = fearr[0]; let femm = fearr[1];
-                    let dt = (new Date(1970,0,1,fehh,femm).getTime()) / 1000;
+                    let dt = (new Date(1970,0,1,fehh,femm).getTime()) / MULT_DIV;
                     pivote_arr_time.push(dt);
                 }
             })
@@ -662,7 +675,7 @@ function primerasCeldasExpreso(){
                 if(ci == ncol - 1){
                     let fearr = FILAS[r][ci].split(":");
                     let fehh = fearr[0]; let femm = fearr[1];
-                    let dt = (new Date(1970,0,1,fehh,femm).getTime()) / 1000;
+                    let dt = (new Date(1970,0,1,fehh,femm).getTime()) / MULT_DIV;
                     pivote_arr_time.push(dt);
                 }
             })
@@ -770,7 +783,7 @@ function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada 
     COV.forEach((ea,eai)=>{
         let rowi = ea[0];
         ea[1].forEach((e,ei)=>{
-            //BASE_ARR_CLIENT[rowi][e] = milisecToHhmm(ea[2][ei], 1000);
+            //BASE_ARR_CLIENT[rowi][e] = milisecToHhmm(ea[2][ei], MULT_DIV);
             BASE_ARR_CLIENT[rowi][e] = ea[2][ei];
         })
     });
@@ -811,7 +824,44 @@ function tercerLlenado(CEC, size){//si no de expreso
         BASE_ARR_CLIENT[cei][size-1] = ce;
     })
 }
-function cuartoLlenado(th){
+function cuartoLlenado(VAC){
+    let min = 0; let max = 0;
+    let rows = 0; let cols = 0;
+    if(Array.isArray(VAC)){
+        rows = VAC.length;
+        for (let rw = 0; rw < rows; rw++) {
+            let tdarr = VAC[rw];
+            for (let td = 0; td < tdarr.length; td++) {
+                let cotd = VAC[rw][td];
+                if(cotd.length == 2){
+                    min = cotd[0]; max = cotd[1];
+                    for (min; min <= max; min++) {
+                        BASE_ARR_CLIENT[min][rw] = "*";
+                    }
+                }else{
+                    min = cotd[0];
+                    BASE_ARR_CLIENT[min][rw] = "*";
+                }
+                min = 0; max = 0;
+            }
+        }
+    }
+
+    //BASE_ARR_CLIENT[0][1] = "a";
+}
+
+function quintoLlenado(fc, cc, md=1000){
+    for (let f = 0; f < fc; f++) {
+        for (let c = 0; c < cc; c++) {
+            let data = BASE_ARR_CLIENT[f][c];
+            if(!isNaN(data)){
+                BASE_ARR_CLIENT[f][c] = milisecToHhmm(data, md ,":");
+            }            
+        }        
+    }    
+}
+
+function sextoLlenado(th){
     BASE_ARR_CLIENT.unshift(th)
 }
 
@@ -878,16 +928,16 @@ function crearColumnaHorario(f,c){ // si bien recive/usa el arreglo de frecuenci
     }
     let timeval  = hora_str.split(':');
     let hh = timeval[0]; let mm = timeval[1];
-    const dTime = new Date(1970,0,1,hh,mm).getTime() / 1000;
+    const dTime = new Date(1970,0,1,hh,mm).getTime() / MULT_DIV;
     let accTime = dTime;
 
     //console.log(hora_str, dTime);
-    let arraxf = [dTime*1000];
+    let arraxf = [dTime*MULT_DIV];
 
     for (let fr = f; fr < FRECUENCIAS_VERTICALES.length; fr++) { // es el numero de frecuencias ver si lo guardamos aparte
         let addTime = FRECUENCIAS_VERTICALES[fr];
         accTime+=addTime;
-        arraxf.push(accTime*1000);
+        arraxf.push(accTime*MULT_DIV);
     }
 
     arraxf.forEach(e=>{
