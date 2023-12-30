@@ -1,7 +1,7 @@
-import data from "./json/exprebus-38-sabados-ns.json" assert { type: 'json' };
-const NOMBRE_ARCHIVO = "exprebus-38-sabados-ab.json";
-//import data from "./json/exprebus-38-sabados-sn.json" assert { type: 'json' };
-//const NOMBRE_ARCHIVO = "exprebus-38-sabados-ba.json";
+//import data from "./json/exprebus-38-sabados-ns.json" assert { type: 'json' };
+//const NOMBRE_ARCHIVO = "exprebus-38-sabados-ab.json";
+import data from "./json/exprebus-38-sabados-sn.json" assert { type: 'json' };
+const NOMBRE_ARCHIVO = "exprebus-38-sabados-ba.json";
 const HORARIO = {
     empresa: "",
     ruta: 0,
@@ -341,7 +341,10 @@ function rangoColumnasVacias(){
                 wi.push(f);
             }
         }
-        rowi.push(notacionRangoArray(wi));
+        let res = notacionRangoArray(wi);
+        if(res.length > 0){
+            rowi.push(notacionRangoArray(wi));
+        }        
         //rowi.push(wi);
     }
     RANGO_COLUMNAS_VACIAS = rowi;
@@ -608,23 +611,19 @@ function primerasCeldasExpreso(){
             }
         }
     }).slice(0, ncol);
-
     
-    
+        
     let hour_piv_arr;
     if(sentido == "ab"){
         hour_piv_arr = arr_aux[0].split(":"); //falta sentido orientacion ab ba
         cabeza = 0;
     }else if(sentido == "ba"){
-        hour_piv_arr = arr_aux[arr_aux.length - 1].split(":"); //falta sentido orientacion ab ba
+        hour_piv_arr = arr_aux[cabeza].split(":"); //falta sentido orientacion ab ba
         cabeza = arr_aux.length - 1;
     }
 
     hh = parseInt(hour_piv_arr[0]); mm = parseInt(hour_piv_arr[1]);
-    const baseTime = new Date(1970,0,1,hh,mm).getTime();
-
-
-    
+    const baseTime = new Date(1970,0,1,hh,mm).getTime();    
 
     const arr_mmss = arr_aux.map((e)=>{
         let ehh; let emm;        
@@ -672,7 +671,7 @@ function primerasCeldasExpreso(){
     }else{
         FILAS_EXPRESO.forEach(r => {
             FILAS[r].forEach((c,ci)=>{
-                if(ci == ncol - 1){
+                if(ci == ncol - 2){
                     let fearr = FILAS[r][ci].split(":");
                     let fehh = fearr[0]; let femm = fearr[1];
                     let dt = (new Date(1970,0,1,fehh,femm).getTime()) / MULT_DIV;
@@ -681,7 +680,6 @@ function primerasCeldasExpreso(){
             })
         });
     }
-
     
     return [FILAS_EXPRESO,pivote_arr_time, res_aux];
 }
@@ -780,26 +778,30 @@ function columnaExpreso(t="no"){
     return res_arr;
 }
 function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada uno le aplicamos la correspondiente frecuencia hacia abajo
+    //console.log({COV, PFV})
     COV.forEach((ea,eai)=>{
         let rowi = ea[0];
         ea[1].forEach((e,ei)=>{
-            //BASE_ARR_CLIENT[rowi][e] = milisecToHhmm(ea[2][ei], MULT_DIV);
             BASE_ARR_CLIENT[rowi][e] = ea[2][ei];
         })
     });
 
     COV.forEach((ea,eai)=>{
         let rowi = ea[0];
-
+        //console.log({ea1: ea[1], rowi, FILAS_CLIENT});    //columnas, filas y total de filas
         ea[1].forEach((e,ei)=>{
             for (let xf = rowi; xf < FILAS_CLIENT-1; xf++) {
-                let calc = BASE_ARR_CLIENT[xf][e] + PFV[xf-1];
-                BASE_ARR_CLIENT[xf+1][e] = calc;
-                //console.log("base arr it: cl:", ei, BASE_ARR_CLIENT[xf][e])
+                let pfvi = 0;
+                if(xf - 1 > 0){
+                    pfvi = xf - 1;
+                }
+                let calc = BASE_ARR_CLIENT[xf][e] + PFV[pfvi];
+                //console.log({bac: BASE_ARR_CLIENT[xf][e], pfv: PFV[pfvi], calc})
+                BASE_ARR_CLIENT[xf+1][e] = calc;                
             }
         })
     });
-
+    
     return {COV, PFV};
 }
 function segundoLlenado(PEH, SC, FC){

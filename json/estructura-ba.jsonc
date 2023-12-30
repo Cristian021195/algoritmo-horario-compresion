@@ -1,20 +1,30 @@
 [
-    {
-        "K": 1, // key de continuidad. matcheo con A para saber si pertenece al mismo scan
-        "A": "exprebus-38-sabados-ba",
-        "B": "12-12-23",
-        "C": ["rio huacra","los pizarros","la cocha","alberdi","santa ana","aguilares","concepcion","monteros","famailla","tucuman","expreso"],//cabecera, nos permite obtener el n columnas de paso
-        "D": [1800,3600,4200,2400,1800,1800,1800,3600,1800,2400]//frecuencias (verticales) pivote vertical
-    },
-    {
-        "K": 2,
-        "A": "exprebus-38-sabados-ba",
-        "E": [[0,[5,6,7,8,9],["04:00","04:25","05:00","05:20","05:50"]],[3,[1,2,3],["05:30","05:45","06:15"]],[0,[9],["08:50"]]],//primeros elementos visibles de arriba a abajo
-        "F": [[9,[2,5,8],["07:20","09:40","11:40"]]],//sirve para expresos e inicializar (puede que deba evaluar el sentido ab/ba)
-        "G": [{"t": 1500,"c": 6},{"t": 2100,"c": 7},{"t": 1200,"c": 8},{"t": 1800,"c": 9}],//frecuencias expreso(?)
-        "H":[{"c":0,"r":[[0,8],[10]]},{"c":1,"r":[[0,2],[4,10]]},{"c":2,"r":[[0,2],[5,8],[10]]},{"c":3,"r":[[0,1],[5,8],[10]]},{"c":4,"r":[[0,10]]},{"c":5,"r":[]},{"c":6,"r":[]},{"c":7,"r":[]},{"c":8,"r":[]},{"c":9,"r":[]},{"c":10,"r":[]}],//celdas vacias: al final
-        "I": 11// numero de filas totales
-    }
+    [
+        {"K":1,
+        "A":"exprebus-38-sabados-ab",
+        "B":"11-12-23",
+        "C":["tucuman","famailla","monteros","concepcion","aguilares","santa ana","alberdi","la cocha","los pizarros","rio huacra","expreso"],
+        "D":[1800,-300,3900,3600,1800,2400,3000,-300,3900],
+        "E":[[1,[3,4],[35400,36900]],[2,[0,1,2],[32400,33900,35100]],[6,[6,7],[49200,51000]]]},
+        {"K":2,"A":"exprebus-38-sabados-ab",
+        "F":[[3,5,9],[34200,39600,48600],[0,0,0,0,4200,5400,0,6600,8100,9000]],
+        "G":[{"t":4200,"c":4},{"t":1200,"c":5},{"t":1200,"c":7},{"t":1500,"c":8},{"t":900,"c":9}],
+        "H":[[[0,1]],[[0,1],[3],[9]],[[0,1],[3],[9]],[[0],[3],[9]],[[0]],[[0,2],[4,8],[10]],[[0,5],[7,10]],[[0,5],[7,8],[10]],[[0,8],[10]],[[0,8],[10]]],
+        "I":11}
+    ],
+    [
+        {"K":1,
+        "A":"exprebus-38-sabados-ba",
+        "B":"12-12-23",
+        "C":["rio huacra","los pizarros","la cocha","alberdi","santa ana","aguilares","concepcion","monteros","famailla","tucuman","expreso"],
+        "D":[1800,3600,4200,2400,1800,1800,1800,3600,1800,2400],
+        "E":[[0,[5,6,7,8,9],[25200,26700,28800,30000,31800]],[3,[1,2,3],[30600,31500,33300]],[9,[0],[42600]]]}, // primeras celdas regulares, sabana
+        {"K":2,"A":"exprebus-38-sabados-ba",
+        "F":[[2,5,8],[37200,45600,52800],[0,0,0,8100,0,6600,5100,3000,1800,0]],
+        "G":[{"t":1500,"c":6},{"t":2100,"c":7},{"t":1200,"c":8},{"t":1800,"c":9}],
+        "H":[[[0,8],[10]],[[0,2],[4,10]],[[0,2],[5,8],[10]],[[0,1],[5,8],[10]],[[0,10]],[],[],[],[],[]],
+        "I":11}
+    ]
 ]
 
 /*
@@ -30,6 +40,13 @@ algo similar a:
 27-12-23
 Evaluar que el campo H de instrucciones de vacio funcione correctamente, probar tambien la alternativa de hacerlo
 con arreglos en vez de objetos, por que pasamos de 282 caracteres a 197 casi 100 menos y si llegase a ser mas grande seria mejor
+
+29-12-23
+    - La funcion que genera los arreglos vacios, en caso de no tener, o tener columnas totalmente llenas
+    generan igual un array vacio, si la instruccion de decompresion la hace por c elemento y no es fijo
+    borrarlos de la instruccion xq ocupan caracteres. ver el caso exp-38-sab-ba sentido ba
+    - La otra funcionalidad que no funciona correctamente es la de llenar con horarios con el pivote vertical, 
+    verificar dicha funcion ya que la instruccion lo guarda correctamente
 
 {
     "H":[
@@ -71,6 +88,7 @@ con arreglos en vez de objetos, por que pasamos de 282 caracteres a 197 casi 100
         [[0,8],[10]],
         [[]],
     ]
+
 
 }
 
