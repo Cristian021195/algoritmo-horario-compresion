@@ -791,16 +791,15 @@ function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada 
         //console.log({ea1: ea[1], rowi, FILAS_CLIENT});    //columnas, filas y total de filas
         ea[1].forEach((e,ei)=>{
             for (let xf = rowi; xf < FILAS_CLIENT-1; xf++) {
-                /*let pfvi = 0;
-                if(xf - 1 > 0){
-                    pfvi = xf - 1;
-                }*/
-                //debemos de nivelar, porque si tomamos como referencia solo el tope con rowi perdemos la referencia de dicho arreglo
-                // ARREGLAR DESDE AQUI, Y PENSAR LA SOLUCION. LA ALTERNATIVA SERÍA QUE EL PFV y la suma se tome las frecuencias
-                // desde el tope, asi la suma no sea con la anterior, sino con la que corresponde por indice. Al final creo que sería mejor la ultima
-                // en tal caso, hacer ramas desde aqui
+                /*
+                debemos de nivelar, porque si tomamos como referencia solo el tope con rowi perdemos la referencia de dicho arreglo
+                ARREGLAR DESDE AQUI, Y PENSAR LA SOLUCION. LA ALTERNATIVA SERÍA QUE EL PFV y la suma se tome las frecuencias
+                desde el tope, asi la suma no sea con la anterior, sino con la que corresponde por indice. Al final creo que sería mejor la ultima
+                en tal caso, hacer ramas desde aqui
+                ab - "D":[180,-30,390,360,180,240,300,-30,390]
+                ba - "D":[180,360,420,240,180,180,180,360,180,240]
+                */
                 let calc = BASE_ARR_CLIENT[xf][e] + PFV[xf];
-                //let calc = BASE_ARR_CLIENT[xf][e] + PFV[pfvi];
                 console.log({bac: BASE_ARR_CLIENT[xf][e], rowi, xf, pfv:PFV[xf]})
                 BASE_ARR_CLIENT[xf+1][e] = calc;
             }
