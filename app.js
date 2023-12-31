@@ -1,7 +1,7 @@
-//import data from "./json/exprebus-38-sabados-ns.json" assert { type: 'json' };
-//const NOMBRE_ARCHIVO = "exprebus-38-sabados-ab.json";
-import data from "./json/exprebus-38-sabados-sn.json" assert { type: 'json' };
-const NOMBRE_ARCHIVO = "exprebus-38-sabados-ba.json";
+import data from "./json/exprebus-38-sabados-ns.json" assert { type: 'json' };
+const NOMBRE_ARCHIVO = "exprebus-38-sabados-ab.json";
+//import data from "./json/exprebus-38-sabados-sn.json" assert { type: 'json' };
+//const NOMBRE_ARCHIVO = "exprebus-38-sabados-ba.json";
 const HORARIO = {
     empresa: "",
     ruta: 0,
@@ -86,12 +86,12 @@ let PIVOTE_EXP_HORIZONTAL = pivoteExpresoHorizontalClient();
 let VACIO_ARR_CLIENT = vacioArrClient();
 let COL_EXP_CLIENT = ultimaColumna("no","si",FILAS_CLIENT, PIVOTE_EXP_HORIZONTAL[0]);
 primerLlenado(COVER_COLS_CLIENT, PIVOTE_FREC_VERTICUAL);
-segundoLlenado(PIVOTE_EXP_HORIZONTAL, SENTIDO_CLIENT, FILAS_CLIENT);
-tercerLlenado(COL_EXP_CLIENT, COLUMNAS_TH_CLIENT.length);
-console.log("VACIO_ARR_CLIENT: ", JSON.stringify(VACIO_ARR_CLIENT))
-cuartoLlenado(VACIO_ARR_CLIENT);
+//segundoLlenado(PIVOTE_EXP_HORIZONTAL, SENTIDO_CLIENT, FILAS_CLIENT);
+//tercerLlenado(COL_EXP_CLIENT, COLUMNAS_TH_CLIENT.length);
+//console.log("VACIO_ARR_CLIENT: ", JSON.stringify(VACIO_ARR_CLIENT))
+//cuartoLlenado(VACIO_ARR_CLIENT);
 quintoLlenado(FILAS_CLIENT,COLUMNAS_TH_CLIENT.length, MULT_DIV);
-sextoLlenado(COLUMNAS_TH_CLIENT);
+//sextoLlenado(COLUMNAS_TH_CLIENT);
 //console.log("VACIO_ARR_CLIENT: ", VACIO_ARR_CLIENT)
 console.table(BASE_ARR_CLIENT);
 
@@ -778,7 +778,7 @@ function columnaExpreso(t="no"){
     return res_arr;
 }
 function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada uno le aplicamos la correspondiente frecuencia hacia abajo
-    //console.log({COV, PFV})
+    console.log({COV, PFV})
     COV.forEach((ea,eai)=>{
         let rowi = ea[0];
         ea[1].forEach((e,ei)=>{
@@ -791,13 +791,18 @@ function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada 
         //console.log({ea1: ea[1], rowi, FILAS_CLIENT});    //columnas, filas y total de filas
         ea[1].forEach((e,ei)=>{
             for (let xf = rowi; xf < FILAS_CLIENT-1; xf++) {
-                let pfvi = 0;
+                /*let pfvi = 0;
                 if(xf - 1 > 0){
                     pfvi = xf - 1;
-                }
-                let calc = BASE_ARR_CLIENT[xf][e] + PFV[pfvi];
-                //console.log({bac: BASE_ARR_CLIENT[xf][e], pfv: PFV[pfvi], calc})
-                BASE_ARR_CLIENT[xf+1][e] = calc;                
+                }*/
+                //debemos de nivelar, porque si tomamos como referencia solo el tope con rowi perdemos la referencia de dicho arreglo
+                // ARREGLAR DESDE AQUI, Y PENSAR LA SOLUCION. LA ALTERNATIVA SERÍA QUE EL PFV y la suma se tome las frecuencias
+                // desde el tope, asi la suma no sea con la anterior, sino con la que corresponde por indice. Al final creo que sería mejor la ultima
+                // en tal caso, hacer ramas desde aqui
+                let calc = BASE_ARR_CLIENT[xf][e] + PFV[xf];
+                //let calc = BASE_ARR_CLIENT[xf][e] + PFV[pfvi];
+                console.log({bac: BASE_ARR_CLIENT[xf][e], rowi, xf, pfv:PFV[xf]})
+                BASE_ARR_CLIENT[xf+1][e] = calc;
             }
         })
     });
