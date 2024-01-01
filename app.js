@@ -798,6 +798,22 @@ function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada 
                 en tal caso, hacer ramas desde aqui
                 ab - "D":[180,-30,390,360,180,240,300,-30,390]
                 ba - "D":[180,360,420,240,180,180,180,360,180,240]
+
+                PROBLEMA: el problema que se nos presenta es con el calculo de frecuencias verticales
+                ya que si el pivote esta desplazado hacia abajo, o sea, la primer fila del horario era vacia,
+                el indice se corre y no permite calcular correctamente las demas columnas. 
+                Una solucion planteada es:
+                    - hacer una instruccion completa para pivote y sus frecuencias
+                    - la frecuencia tomarla en base al pivote superior.
+                    - por ej:
+                        - el pivote tiene su tope en: 3690 (07:15) pero su celda superior era vacia ó
+                        - el pivote tiene su tope en: 2520 (04:00) y es la celda superior de la tabla
+                        - ¿como obtenemos un arreglo de frecuencias eficiente que nos ayude a calcular para todas las demas
+                        columnas? ¿tiene que tener la misma longitud que la tabla? ¿y si el pivote comienza en 0 pero termina
+                        antes, o si tiene una fila vacia en cada extremo? 
+                        - para este caso me suena mas acorde hacer el arreglo / intruccion de frecuencias verticales salvaguardando
+                        la posicion perteneciente a cada frecuencia
+
                 */
                 let calc = BASE_ARR_CLIENT[xf][e] + PFV[xf];
                 console.log({bac: BASE_ARR_CLIENT[xf][e], rowi, xf, pfv:PFV[xf]})
