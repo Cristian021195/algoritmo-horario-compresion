@@ -72,7 +72,14 @@ rangoColumnasVacias();
 INSTRUCCION = armarInstruccion(2, 1);
 console.log(JSON.stringify(INSTRUCCION));
 
-
+/* PENDIENTE: 
+    - Un arreglo de arreglos con aquellas celdas excepcionales, por ej: horario tesa, que puso uno fuera de horario
+        , cuidades a las cuales llega muy pocas o una sola vez el colectivo en el dia, (celda fantasma)
+        usarlo antes del sextoLlenado o remnombrar este
+    - La nueva version de PFV: con la actual solo funciona con PIVOTES verticales sin cortes / huecos, la nueva idea esta descripta
+    - segundoLlenado no da bien los valores por que no esta correctamente definida la fila expreso como debería, tambien tener en cuenta
+    que segun el SENTIDO_CLIENT deberia de restar (ba) o sumar (ab)
+*/
 
 // decompresion: todo se debe obtener por los datos de la instruccion
 let SENTIDO_CLIENT = sentidoClient();// :str
@@ -86,12 +93,12 @@ let PIVOTE_EXP_HORIZONTAL = pivoteExpresoHorizontalClient();
 let VACIO_ARR_CLIENT = vacioArrClient();
 let COL_EXP_CLIENT = ultimaColumna("no","si",FILAS_CLIENT, PIVOTE_EXP_HORIZONTAL[0]);
 primerLlenado(COVER_COLS_CLIENT, PIVOTE_FREC_VERTICUAL);
-//segundoLlenado(PIVOTE_EXP_HORIZONTAL, SENTIDO_CLIENT, FILAS_CLIENT);
-//tercerLlenado(COL_EXP_CLIENT, COLUMNAS_TH_CLIENT.length);
+segundoLlenado(PIVOTE_EXP_HORIZONTAL, SENTIDO_CLIENT, FILAS_CLIENT); // CORREGIR
+tercerLlenado(COL_EXP_CLIENT, COLUMNAS_TH_CLIENT.length);
 //console.log("VACIO_ARR_CLIENT: ", JSON.stringify(VACIO_ARR_CLIENT))
-//cuartoLlenado(VACIO_ARR_CLIENT);
+cuartoLlenado(VACIO_ARR_CLIENT);
 quintoLlenado(FILAS_CLIENT,COLUMNAS_TH_CLIENT.length, MULT_DIV);
-//sextoLlenado(COLUMNAS_TH_CLIENT);
+sextoLlenado(COLUMNAS_TH_CLIENT);
 //console.log("VACIO_ARR_CLIENT: ", VACIO_ARR_CLIENT)
 console.table(BASE_ARR_CLIENT);
 
@@ -778,7 +785,21 @@ function columnaExpreso(t="no"){
     return res_arr;
 }
 function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada uno le aplicamos la correspondiente frecuencia hacia abajo
-    console.log({COV, PFV})
+    /* TODA LA IMPLEMENTACION DE ESTE ALGORITMO FUNCIONA EN CASOS DONDE NO HAYA HUECOS DE POR MEDIO EN LOS PIVOTES CORRESPONDIENTES 
+    EN REALIDAD AL ALGORITMO ENTERO CUENTA QUE SIEMPRE DEBE HABER UNA COLUMNA PIVOTE CON TODOS SUS VALORES
+    EN CASO DE QUE NO: MAS A FUTURO PODEMOS IMPLEMENTAR UN ALGORITMO QUE PRESENTE UN HUECO EN MEDIO, Y LLENARLO CON UNA COLUMNA VECINA
+    EL PROCESO SERÍA MAS LARGO DE DETERMINAR PFV, PERO SERIA MAS O MENOS ASI:
+
+        1 - Se efectua el primer proceso para determinar que columna es la que tiene mas valores
+        2 - Se crea dicha columna de frecuencias verticales PERO, donde haya campos vacios, va un cero y se guarda
+        provisoriamente la posicion en fila de dicha celda vacia.
+        3 - Se obtiene la posicion y valor de la celda vecina mas cercana a dicho hueco
+            EVITAR AQUELLAS FILAS QUE SEAN EXPRESO
+        4 - Una vez el proceso de llenado vertical con PFV, salvaguardamos el momento en donde
+            los bucles pasan por la celda vecina, y ahi hacemos el calculo correspondiente
+        5 - lo agregamos al PFV, ya teniendo el tiempo correcto que faltaba en dicho hueco
+    
+    */
     COV.forEach((ea,eai)=>{
         let rowi = ea[0];
         ea[1].forEach((e,ei)=>{
@@ -786,11 +807,25 @@ function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada 
         })
     });
 
+    
     COV.forEach((ea,eai)=>{
+        let pfv = [...PFV]; let diff = FILAS_CLIENT - PFV.length;
+        let arr = [];
         let rowi = ea[0];
-        //console.log({ea1: ea[1], rowi, FILAS_CLIENT});    //columnas, filas y total de filas
+        for (let i = 1; i < rowi; i++) {
+            arr.push(0);
+        }
+        pfv = pfv.splice(arr.length, PFV.length);
+        arr = [...arr, ...pfv];
+        console.log({FILAS_CLIENT, lon: PFV.length , diff})
+        
+        for (let x = 1; x < diff; x++) {
+            arr.unshift(0);
+        }
+
         ea[1].forEach((e,ei)=>{
             for (let xf = rowi; xf < FILAS_CLIENT-1; xf++) {
+
                 /*
                 debemos de nivelar, porque si tomamos como referencia solo el tope con rowi perdemos la referencia de dicho arreglo
                 ARREGLAR DESDE AQUI, Y PENSAR LA SOLUCION. LA ALTERNATIVA SERÍA QUE EL PFV y la suma se tome las frecuencias
@@ -813,13 +848,14 @@ function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada 
                         antes, o si tiene una fila vacia en cada extremo? 
                         - para este caso me suena mas acorde hacer el arreglo / intruccion de frecuencias verticales salvaguardando
                         la posicion perteneciente a cada frecuencia
-
                 */
-                let calc = BASE_ARR_CLIENT[xf][e] + PFV[xf];
-                console.log({bac: BASE_ARR_CLIENT[xf][e], rowi, xf, pfv:PFV[xf]})
+                
+                let bac = BASE_ARR_CLIENT[xf][e] != undefined ? BASE_ARR_CLIENT[xf][e] : 0
+                let calc = bac + arr[xf];
+                //console.log({bac: BASE_ARR_CLIENT[xf][e], rowi, xf, pfv:PFV[xf]})
                 BASE_ARR_CLIENT[xf+1][e] = calc;
             }
-        })
+        });
     });
     
     return {COV, PFV};
