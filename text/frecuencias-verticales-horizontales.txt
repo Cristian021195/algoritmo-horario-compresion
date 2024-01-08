@@ -1,3 +1,22 @@
+1 - Identifica la col pivote, que tiene mas celdas
+2 - a - ¿Como identificamos correctamente una col pivote?:
+		- La pivote completa es aquella que tiene el mismo numero de elementos que fila en la tabla, esto facilita al algoritmo ya que no tenemos que
+			asumir celdas fantasmas, se retorna directamente dicha col pivote.
+		- La pivote comun es la que tiene mas elementos, en comparacion a todas las columnas, y puede ser menor al numero de filas de la table
+		- La pivote incompleta es la que tiene mas elementos en comparacion a otras columnas, es la primer coincidencia de mayor columnas ya que 
+			se prioriza el sentido ab/ba segun el caso (en caso de que hayan otras columnas con la misma cantidad de celdas), 
+			puede ocurrir que esta columna pivote tenga huecos o celdas fantasmas en medio, es aqui donde aplicariamos el algoritmo:
+				a - calcular la pivote como veniamos haciendo
+				b - donde haya huecos, espacios en blanco, se pone 0 o algun valor para diferenciar (- primer celda asi da cero) y se guarda la posicion de la celda
+				(fila y columna, x y) aunque el indice ya lo teniamos de INDICE_PIVOTE_VERTICAL
+				c - se hace el calculo de frecuencias con la cortina como antes pero:
+					i - cuando llegamos a la columna o celda guardada guardamos dicha celda y posicion + valor
+					ii - se hace el calculo con la celda anterior, se guarda su posicion, y dicha frecuencia es reemplazada en donde esta el hueco de la primera.
+3 - para aquellos casos excepcionales donde no pueda calcularse esto, porque donde hay hueco o alguna excepcion, se deberia guardar en una variable
+	arreglo global de celdas o filas excepcionales.
+EJEMPLOS: https://www.facebook.com/LosFamaillenses/posts/pfbid05kGr4byKzx9CR1RhTWYd8k26vDd8HP4PCt5ttaU5cCvbK4V8KHp3r4wM633qzQfsl
+	
+
 1) Arreglo de Frecuencias Verticales
 	- evalua el sentido para saber si comienza por la primer columna o la ultima
 	- evalua que la columna pivote este completa, de no estarlo busca en otras columnas para ver si hay un candidato pivote,

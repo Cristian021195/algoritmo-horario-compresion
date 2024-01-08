@@ -1,4 +1,30 @@
-let arr = [
+let arr = [0, 0, 180, 180, 360, 180, 240, 300, 180, 0];
+//let arr = [0, 200, 180, 180, 360, 180, 240, 300, 180, 0];
+//let arr = [0, 0, 180, 180, 360, 180, 240, 300, 180, 180];
+let res = [];
+
+for (let k = 0; k < arr.length; k++) {
+
+    let sv;
+
+    if(arr[k+1] === 0){
+        sv = 0;
+    }else if(arr[k+1] === undefined){
+        sv = -1;
+    }else{
+        sv = arr[k+1];
+    }
+
+    if(sv != 0  && arr[k] == 0){
+        res.push({sv, prev: k, curr: k+1, up:false})
+    }
+    if(sv === -1 && arr[arr.length-1] === 0){
+        res.push({sv: arr[k], prev: k-1, curr: k, up:true})
+    }
+}
+console.log(res);
+
+/*let arr = [
     [[0,1]],
     [[0,1],[3],[9]],
     [[0,1],[3],[9]],
@@ -50,7 +76,7 @@ function notacionRangoArray(evalarr){
         })
     }
     return resultarr;
-}
+}*/
 /* 
     - Densidad: 288 x [4 a 20 ciudades] = 1152 a  5760 celdas 
     - El horario mas largo hasta ahora tiene 12 columnas, lo que daría: 288 x 12 = 3456 columnas

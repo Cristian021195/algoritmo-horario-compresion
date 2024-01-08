@@ -1,7 +1,7 @@
-import data from "./json/exprebus-38-sabados-ns.json" assert { type: 'json' };
-const NOMBRE_ARCHIVO = "exprebus-38-sabados-ab.json";
-//import data from "./json/exprebus-38-sabados-sn.json" assert { type: 'json' };
-//const NOMBRE_ARCHIVO = "exprebus-38-sabados-ba.json";
+//import data from "./json/exprebus-38-sabados-ns.json" assert { type: 'json' };
+//const NOMBRE_ARCHIVO = "exprebus-38-sabados-ab.json";
+import data from "./json/exprebus-38-sabados-sn.json" assert { type: 'json' };
+const NOMBRE_ARCHIVO = "exprebus-38-sabados-ba.json";
 const HORARIO = {
     empresa: "",
     ruta: 0,
@@ -58,9 +58,10 @@ console.table(FILAS);
 
 // compresion
 NOMBRE_OK = validarNombreArchivo(NOMBRE_ARCHIVO);
-COL_PIVOTE = pivoteVertical();
-FRECUENCIAS_VERTICALES = frecuenciasVerticales();
-FRECUENCIAS_VERTICALES_ALT = frecuenciasVerticalesAlt();
+//COL_PIVOTE = pivoteVertical(); // tambien llena INDICE_PIVOTE_VERTICAL
+FRECUENCIAS_VERTICALES = pivoteVertical();//frecuenciasVerticales(COL_PIVOTE);
+console.log("FRECUENCIAS_VERTICALES",FRECUENCIAS_VERTICALES)
+//FRECUENCIAS_VERTICALES_ALT = frecuenciasVerticalesAlt();
 PRIMERAS_CELDAS_REGULARES = primerasCeldasRegularesAlt();//E: PRIMERAS_CELDAS_REGULARES = primerasCeldasRegulares();
 arregloExpresos(); // carga FILAS_EXPRESO FILAS_REGULARES
 PRIMERAS_CELDAS_EXPRESO = primerasCeldasExpreso()
@@ -68,7 +69,7 @@ PRIMERAS_CELDAS_EXPRESO = primerasCeldasExpreso()
 FRECUENCIAS_HORIZONTALES_EXPRESO = frecuenciasHorizontalesExpreso("si"); // hacer evaluacion de expreso si no 1 - 0
 rangoColumnasVacias();
 //ponerColumnasVacias(r_c_v);
-//console.table(FILAS);
+console.table(FILAS);
 INSTRUCCION = armarInstruccion(2, 1);
 console.log(JSON.stringify(INSTRUCCION));
 
@@ -100,11 +101,11 @@ cuartoLlenado(VACIO_ARR_CLIENT);
 quintoLlenado(FILAS_CLIENT,COLUMNAS_TH_CLIENT.length, MULT_DIV);
 sextoLlenado(COLUMNAS_TH_CLIENT);
 //console.log("VACIO_ARR_CLIENT: ", VACIO_ARR_CLIENT)
-console.table(BASE_ARR_CLIENT);
+//console.table(BASE_ARR_CLIENT);
 
 
 //helpers
-function hhmmToMilisec(hhmm="00:00", div=1){
+function hhmmToMilisec(hhmm="00:00", div=1){    
     let arr = hhmm.split(":");
     let hh = arr[0]; let mm = arr[1];
     let dt = new Date(1970,0,1,hh,mm);
@@ -165,40 +166,47 @@ function frecuenciasVerticalesAlt(){// tomando referencia 0 a ultimo arreglo con
     //console.log({COL_PIVOTE, celPiv,arrPivMilisec})
     return 0;
 }
-function frecuenciasVerticales(){// tomando referencia 0 a ultimo arreglo con sumatoria de minutos
+function frecuenciasVerticales(CP){// tomando referencia 0 a ultimo arreglo con sumatoria de minutos
     const freq_arr = []; const freq_diff = []; const freq_step = [];
 
     //freq_arr
-    for(let f = 0; f<COL_PIVOTE.length; f++){// recorre por cada elemento de la columna pivote
-        freq_arr.push(hhmmToMilisec(COL_PIVOTE[f],MULT_DIV)); // guardamos un arreglo de tiempos en milisegundos para comparar
+    for(let f = 0; f<CP.length; f++){// recorre por cada elemento de la columna pivote
+        freq_arr.push(hhmmToMilisec(CP[f],MULT_DIV)); // guardamos un arreglo de tiempos en milisegundos para comparar
     }
 
-    for(let i = 0; i < COL_PIVOTE.length; i++){ // por eliminar
+    /*
+    for(let i = 0; i < CP.length; i++){ // por eliminar
         let diff = 0;
-        if(i+1 !== COL_PIVOTE.length){
+        if(i+1 !== CP.length){
             diff = freq_arr[i + 1] - freq_arr[i];
         }else{
             diff = freq_arr[i];
         }
         freq_diff.push(diff);
-    }
+    }    
 
     let sum;
     let arr_aux = freq_diff.map(elem => sum = (sum || 0) + elem);
     arr_aux.pop();
     let res_arr = [0,...arr_aux];
+    */
 
     /*freq_step: calcula la diferencia entre celdas de la columna con su contigua y las mete en un arreglo
     obteniendo asi un arreglo de diferencias de horario */
-    for(let i = 0; i < COL_PIVOTE.length; i++){
+    for(let i = 0; i < CP.length; i++){
         let diff = 0;
-        if(i+1 !== COL_PIVOTE.length){
-            diff = freq_arr[i + 1] - freq_arr[i];
-            freq_step.push(diff);            
+        if(isNaN(freq_arr[i])){
+            freq_step.push(0);
+        }else{
+            if(i+1 !== CP.length){
+                diff = freq_arr[i + 1] - freq_arr[i];
+                freq_step.push(diff);
+            }
         }
     }
     return freq_step;
 }
+
 function primerasCeldasRegularesAlt(){
     const nfila = N_FILAS; const ncol = N_COLUMNAS - 1;//Puede dar error, analizar si es f o col
     const arr_pos_a_llenar_col = []; const arr_pos_a_llenar_row = [];
@@ -368,11 +376,11 @@ function armarInstruccion(tolerancia=2, puja = 1){// la puja solo funciona para 
     const OBJ = {
         A: HORARIO.empresa+"-"+HORARIO.ruta+"-"+HORARIO.dias+"-"+HORARIO.sentido,
         B: HORARIO.vigencia,
-        C: COLUMNAS,
+        C: COLUMNAS.join("-"),
         D: FRECUENCIAS_VERTICALES,
         E: PRIMERAS_CELDAS_REGULARES,
         F: PRIMERAS_CELDAS_EXPRESO,
-        G: FRECUENCIAS_HORIZONTALES_EXPRESO,
+        //G: FRECUENCIAS_HORIZONTALES_EXPRESO,
         H: RANGO_COLUMNAS_VACIAS,
         I: N_FILAS // n columnas no lo ponemos, ya que lo podemos inferir de las columnas
     }
@@ -433,10 +441,11 @@ function armarInstruccion(tolerancia=2, puja = 1){// la puja solo funciona para 
 }
 // Sub funciones de Armado de instruccion: funciones usadas dentro de otras
 function buscarPivoteAuto(N_FILAS, safeRow){//quitando la ultima -1,//return traerColumna(0,0);
-    /* busca por columna, cual es la que mas filas para tomarla como pivote*/
-    const long_arr = [];
-    const obj = {pos:0, val:0}
-    let max_elem = 0;
+    let piv_completa = false; let comun = false; let fantasmas = [];
+    let filas_vacias = []; let col_res = [];    let col_aux = [];   let freq_arr = [];
+    const long_arr = [];    /* busca por columna, cual es la que mas filas para tomarla como pivote*/
+    const obj = {pos:0, val:0}; let max_elem = 0;
+
     for(let c = 0; c<N_COLUMNAS-1; c++){
         let col = traerColumna(c, safeRow).filter(e=>e!=="*");
         long_arr.push(col.length);
@@ -449,7 +458,86 @@ function buscarPivoteAuto(N_FILAS, safeRow){//quitando la ultima -1,//return tra
 
     max_elem = Math.max(...long_arr); // toma el mayor valor del arreglo de columa
     obj.pos = long_arr.findIndex(e=>e===max_elem); // trae el indice de la primer columna con mayor cantidad de registros
-    return traerColumna(obj.pos, 0).filter(e=>e!=="*");
+    INDICE_PIVOTE_VERTICAL = obj.pos;
+    col_aux = traerColumna(obj.pos, 0);
+    col_res = traerColumna(obj.pos, 0).filter(e=>e!=="*");
+    //let xx = traerColumna(3, 0);
+    //console.log("xx: ", xx);
+    //console.log("xxf: ", frecuenciasVerticales(xx));
+
+    for (let i = 0; i < col_aux.length; i++) {
+        if(col_aux[i] == "*"){
+            fantasmas.push(i);
+        }
+    }
+
+    
+    fantasmas.forEach((e,ei)=>{
+        let flag = false;
+        for (let i = 0; i < FILAS[e].length - 2; i++) {
+            if(FILAS[e][i] == "*"){
+                flag = true;
+            }else{
+                flag = false;
+                break;
+            }
+        }
+        if(flag === true){
+            filas_vacias.push(e);
+        }
+    })
+
+
+    //console.log({col_res, col_aux, fantasmas, filas_vacias})
+    /* en este punto vemos que donde hay celda vacia tambien es fila, por lo tanto la pivote queda resuelta */
+    if(JSON.stringify(fantasmas) === JSON.stringify(filas_vacias)){        
+        return col_res.map(e=>hhmmToMilisec(e,MULT_DIV));
+    }else{
+        let celdas_fantasma = [];
+        let up = false;
+        fantasmas.forEach((f,fi)=>{
+            filas_vacias.forEach((fv,fvi)=>{
+                if(f != fv){
+                    celdas_fantasma.push(f);
+                }
+            })
+        })
+
+        freq_arr = frecuenciasVerticales(col_aux);
+        //console.log("frea_arr ",freq_arr)
+        
+        celdas_fantasma.forEach((cf,cfi)=>{
+            let row = FILAS[cf];
+            let nrow = row.map((e,ei) =>{
+                if(e != "*"){
+                    return ei;
+                }
+            }).splice(0,row.length-1).filter(e=>e!=undefined)
+
+            //console.log(nrow)
+
+            for (let i = 0; i < nrow.length; i++) {
+                let top = FILAS[cf - 1][nrow[i]];
+                let bottom = FILAS[cf + 1][nrow[i]];
+                let curr = FILAS[cf][nrow[i]];
+                let res = 0;
+                if(bottom != "*"){
+                    res = hhmmToMilisec(curr, MULT_DIV) - hhmmToMilisec(bottom, MULT_DIV);
+                    freq_arr[cf] = Math.abs(res);
+                    break;
+                }
+                if(top != "*"){
+                    res = hhmmToMilisec(curr, MULT_DIV) - hhmmToMilisec(top, MULT_DIV);
+                    freq_arr[cf] = Math.abs(res);
+                    break;
+                }
+            }
+        })
+
+        //console.log("frea_arr ",freq_arr)
+        //console.log("col_res", col_res)
+        return freq_arr;
+    }    
 }
 function traerColumna(indice, safeRow=0){//safeRow tiene que ser 1 si queremos rescatar la columna sin los valores de la primera fila
     const columna = [];
@@ -737,7 +825,7 @@ function headerClient(){
             }
         }
     })
-    return res;
+    return res.split("-");
 }
 function vacioArrClient(){
     let res;
@@ -817,7 +905,7 @@ function primerLlenado(COV, PFV){ // llenado cortina, tomamos el COVER y a cada 
         }
         pfv = pfv.splice(arr.length, PFV.length);
         arr = [...arr, ...pfv];
-        console.log({FILAS_CLIENT, lon: PFV.length , diff})
+        //console.log({FILAS_CLIENT, lon: PFV.length , diff})
         
         for (let x = 1; x < diff; x++) {
             arr.unshift(0);
